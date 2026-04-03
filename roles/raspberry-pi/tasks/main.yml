@@ -1,0 +1,58 @@
+---
+- name: Ensure svc directories exist
+  file:
+    path: "{{ svc_dir }}/{{ item.name }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+  loop: "{{ stacks }}"
+
+- name: Ensure gh-stats deploy directory exists
+  file:
+    path: "{{ svc_dir }}/gh-stats/deploy"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Deploy docker-compose files
+  copy:
+    src: "{{ item.name }}/docker-compose.yml"
+    dest: "{{ svc_dir }}/{{ item.name }}/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+    mode: "0644"
+  loop: "{{ stacks }}"
+
+- name: Deploy Caddyfiles
+  copy:
+    src: "{{ item.name }}/Caddyfile"
+    dest: "{{ svc_dir }}/{{ item.name }}/Caddyfile"
+    owner: "{{ ansible_user }}"
+    mode: "0644"
+  loop: "{{ stacks }}"
+  when: item.name != 'got'
+
+- name: Deploy gh-stats webhook config
+  copy:
+    src: "gh-stats/deploy/{{ item }}"
+    dest: "{{ svc_dir }}/gh-stats/deploy/{{ item }}"
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+  loop:
+    - hooks.json
+    - deploy.sh
+
+- name: Deploy .env files from vault
+  template:
+    src: "{{ item.name }}.env.j2"
+    dest: "{{ svc_dir }}/{{ item.name }}/.env"
+    owner: "{{ ansible_user }}"
+    mode: "0600"
+  loop: "{{ stacks }}"
+
+- name: Start stacks
+  shell: docker compose --profile {{ item.profile }} up -d
+  args:
+    chdir: "{{ svc_dir }}/{{ item.name }}"
+  loop: "{{ stacks }}"
+  register: stack_results
+  changed_when: "'Started' in stack_results.stderr or 'Created' in stack_results.stderr"

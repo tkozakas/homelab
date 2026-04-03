@@ -1,0 +1,15 @@
+---
+# Timezone (Lithuania)
+timezone: "EET-2EEST,M3.5.0/3,M10.5.0/4"
+timezone_name: "Europe/Vilnius"
+
+
+dns_upstream_servers:
+  - "https://dnsforge.de/dns-query"
+  - "tls://dnsforge.de"
+
+dns_bootstrap_servers:
+  - "9.9.9.10"
+  - "149.112.112.10"
+  - "2620:fe::10"
+  - "2620:fe::fe:10"

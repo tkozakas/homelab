@@ -1,0 +1,64 @@
+services:
+  backend:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/gh-stats-backend:main
+    expose:
+      - "8080"
+    environment:
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_REDIRECT_URL=${GITHUB_REDIRECT_URL:-https://ghstats.fun/api/auth/callback}
+      - FRONTEND_URL=${FRONTEND_URL:-https://ghstats.fun}
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://ghstats.fun}
+      - PORT=8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  frontend:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/gh-stats-frontend:main
+    expose:
+      - "3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  webhook:
+    profiles: ["prod"]
+    image: almir/webhook:latest
+    volumes:
+      - ./deploy/hooks.json:/etc/webhook/hooks.json:ro
+      - ./deploy/deploy.sh:/scripts/deploy.sh:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app:ro
+    environment:
+      - DEPLOY_TOKEN=${DEPLOY_TOKEN}
+    command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
+    restart: unless-stopped
+
+  caddy:
+    profiles: ["prod"]
+    image: caddy:alpine
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  tunnel:
+    profiles: ["prod"]
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - caddy
+    restart: unless-stopped

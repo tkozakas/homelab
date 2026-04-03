@@ -1,0 +1,11 @@
+---
+- name: Configure router
+  hosts: routers
+  gather_facts: false
+
+  roles:
+    - router-base
+    - router-dns
+    - router-firewall
+    - router-vpn
+    - router-tailscale

@@ -1,0 +1,36 @@
+---
+# dnsmasq(:53) -> AdGuard Home(:3053) -> dnsforge.de (DoH/DoT)
+
+- name: Configure dnsmasq forwarding to AdGuard Home
+  raw: |
+    uci set dhcp.@dnsmasq[0].noresolv='1'
+    uci delete dhcp.@dnsmasq[0].server 2>/dev/null
+    uci add_list dhcp.@dnsmasq[0].server='{{ dnsmasq_forward_to }}'
+    uci add_list dhcp.@dnsmasq[0].server='/use-application-dns.net/'
+    uci set dhcp.@dnsmasq[0].localuse='0'
+    uci set dhcp.@dnsmasq[0].localservice='0'
+    uci set dhcp.@dnsmasq[0].rebind_protection='0'
+    uci set dhcp.@dnsmasq[0].filter_aaaa='1'
+    uci set dhcp.@dnsmasq[0].domain='ts.net lan'
+
+- name: Configure VPN dnsmasq instance
+  raw: |
+    uci delete dhcp.wgclient1.server 2>/dev/null
+    uci add_list dhcp.wgclient1.server='{{ dnsmasq_forward_to }}'
+    uci add_list dhcp.wgclient1.server='/use-application-dns.net/'
+    uci set dhcp.wgclient1.noresolv='1'
+
+- name: Commit dhcp config
+  raw: uci commit dhcp
+
+- name: Restart dnsmasq
+  raw: /etc/init.d/dnsmasq restart
+
+- name: Deploy AdGuard Home config
+  raw: |
+    cat > {{ adguard_config_path }} << 'ADGUARD_EOF'
+    {{ lookup('template', 'adguardhome.yaml.j2') }}
+    ADGUARD_EOF
+
+- name: Restart AdGuard Home
+  raw: /etc/init.d/adguardhome restart

@@ -1,0 +1,59 @@
+---
+- name: Verify router configuration
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Gather current config
+      raw: |
+        echo "@@@ system.hostname=$(uci get system.@system[0].hostname)"
+        echo "@@@ system.timezone=$(uci get system.@system[0].timezone)"
+        echo "@@@ system.zonename=$(uci get system.@system[0].zonename)"
+        echo "@@@ network.wan.peerdns=$(uci get network.wan.peerdns)"
+        echo "@@@ network.wan.dns=$(uci get network.wan.dns)"
+        echo "@@@ network.wan.metric=$(uci get network.wan.metric)"
+        echo "@@@ dhcp.dnsmasq.noresolv=$(uci get dhcp.@dnsmasq[0].noresolv)"
+        echo "@@@ dhcp.dnsmasq.server=$(uci get dhcp.@dnsmasq[0].server)"
+        echo "@@@ dhcp.wgclient1.server=$(uci get dhcp.wgclient1.server)"
+        echo "@@@ network.wgclient1.disabled=$(uci get network.wgclient1.disabled)"
+        echo "@@@ firewall.user=$(cat /etc/firewall.user | grep -c ROUTE_POLICY)"
+        echo "@@@ mangle.tailscale0=$(iptables -t mangle -C PREROUTING -i tailscale0 -j ROUTE_POLICY 2>/dev/null && echo ok || echo missing)"
+        echo "@@@ dns.resolv=$(cat /etc/resolv.conf | head -1)"
+        echo "@@@ adguard.upstream=$(grep -A1 'upstream_dns:' /etc/AdGuardHome/config.yaml | tail -1 | tr -d ' -')"
+        echo "@@@ wg.status=$(wg show wgclient1 2>/dev/null | head -1 || echo down)"
+        echo "@@@ tailscale.status=$(tailscale status 2>/dev/null | head -1 | awk '{print $1, $3, $5}' || echo down)"
+      register: current
+      changed_when: false
+
+    - name: Check configuration
+      vars:
+        lines: "{{ current.stdout_lines | select('match', '^@@@') | list }}"
+        expected:
+          "system.hostname": "{{ router_hostname }}"
+          "system.timezone": "{{ timezone }}"
+          "system.zonename": "{{ timezone_name }}"
+          "network.wan.peerdns": "{{ wan_peerdns }}"
+          "network.wan.dns": "{{ wan_dns }}"
+          "network.wan.metric": "{{ wan_metric }}"
+          "dhcp.dnsmasq.noresolv": "1"
+          "network.wgclient1.disabled": "0"
+      debug:
+        msg: "{{ lines }}"
+
+    - name: Verify DNS resolution works
+      raw: nslookup cigslt.cc 127.0.0.1 2>&1 | head -6
+      register: dns_test
+      changed_when: false
+
+    - name: DNS resolution
+      debug:
+        msg: "{{ dns_test.stdout_lines }}"
+
+    - name: Verify VPN connectivity
+      raw: curl -so /dev/null -w 'HTTP %{http_code} | %{remote_ip}' --max-time 10 https://cigslt.cc/ 2>&1
+      register: curl_test
+      changed_when: false
+
+    - name: Site access
+      debug:
+        msg: "{{ curl_test.stdout }}"

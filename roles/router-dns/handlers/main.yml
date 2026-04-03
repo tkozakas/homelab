@@ -1,0 +1,6 @@
+---
+- name: restart dnsmasq
+  command: /etc/init.d/dnsmasq restart
+
+- name: restart adguardhome
+  command: /etc/init.d/adguardhome restart

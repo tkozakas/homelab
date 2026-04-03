@@ -1,0 +1,18 @@
+[
+  {
+    "id": "deploy",
+    "execute-command": "/scripts/deploy.sh",
+    "command-working-directory": "/app",
+    "response-message": "Deployment triggered",
+    "trigger-rule": {
+      "match": {
+        "type": "value",
+        "value": "{{getenv \"DEPLOY_TOKEN\"}}",
+        "parameter": {
+          "source": "header",
+          "name": "Authorization"
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,24 @@
+---
+- name: Enable WireGuard client
+  raw: |
+    uci set network.{{ wireguard_interface }}.disabled='0'
+    uci commit network
+  when: wireguard_enabled
+
+- name: Verify WireGuard status
+  raw: wg show {{ wireguard_interface }} 2>&1 || echo "WireGuard not running"
+  register: wg_status
+  changed_when: false
+
+- name: WireGuard status
+  debug:
+    msg: "{{ wg_status.stdout_lines | default(['not running']) }}"
+
+- name: Verify VPN routing table
+  raw: ip route show table {{ wireguard_routing_table }}
+  register: wg_routes
+  changed_when: false
+
+- name: VPN routes
+  debug:
+    msg: "{{ wg_routes.stdout_lines }}"

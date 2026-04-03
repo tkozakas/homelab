@@ -1,0 +1,18 @@
+---
+# OpenWrt router defaults
+ansible_connection: ssh
+ansible_shell_type: sh
+
+
+# WAN configuration
+wan_interface: "eth1"
+wan_proto: "dhcp"
+wan_peerdns: "0"
+wan_dns: "127.0.0.1"  # use local dnsmasq -> AdGuard -> dnsforge
+
+# AdGuard Home
+adguard_listen_port: 3053
+adguard_config_path: "/etc/AdGuardHome/config.yaml"
+
+# dnsmasq
+dnsmasq_forward_to: "127.0.0.1#{{ adguard_listen_port }}"

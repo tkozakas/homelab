@@ -1,0 +1,13 @@
+---
+pi_hostname: "nil"
+svc_dir: "/home/user/svc"
+
+stacks:
+  - name: sea-battle
+    profile: prod
+  - name: got
+    profile: prod
+  - name: sauktiniai
+    profile: prod
+  - name: gh-stats
+    profile: prod

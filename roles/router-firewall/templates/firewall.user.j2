@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+# Custom iptables rules — executed on every firewall (re-)start.
+
+{% for iface in firewall_mangle_interfaces %}
+# Route {{ iface }} traffic through VPN via ROUTE_POLICY chain
+iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY 2>/dev/null
+{% endfor %}

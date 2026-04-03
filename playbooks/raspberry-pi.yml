@@ -1,0 +1,7 @@
+---
+- name: Configure Raspberry Pi
+  hosts: raspberry_pis
+  gather_facts: true
+
+  roles:
+    - raspberry-pi

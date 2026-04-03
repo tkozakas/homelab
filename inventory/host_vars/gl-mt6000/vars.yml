@@ -1,0 +1,70 @@
+---
+# GL-MT6000 (Flint 2) — GL.iNet firmware 4.8.3 (OpenWrt 21.02-SNAPSHOT)
+router_hostname: "GL-MT6000"
+
+# WAN
+wan_device: "eth1"
+wan_proto: "dhcp"
+wan_peerdns: "0"
+wan_dns: "127.0.0.1"
+wan_metric: "10"
+
+# LAN
+lan_ipaddr: "192.168.8.1"
+lan_netmask: "255.255.255.0"
+
+# WiFi
+wifi_2g_ssid: "GL-MT6000-aa8"
+wifi_5g_ssid: "GL-MT6000-aa8-5G"
+wifi_country: "LT"
+
+# WireGuard VPN client
+wireguard_enabled: true
+wireguard_interface: "wgclient1"
+wireguard_config: "peer_2001"
+wireguard_routing_table: "1001"
+wireguard_peer_name: "wg-US-FREE-89"
+wireguard_endpoint: "138.199.50.129:51820"
+wireguard_address_v4: "10.2.0.2/32"
+wireguard_public_key: "A1lZjTXsjqmvmehp9i0zV+jzl89Vf2y2fXxeMRSjp18="
+wireguard_keepalive: "25"
+wireguard_mtu: "1420"
+
+# Tailscale
+tailscale_enabled: true
+tailscale_exit_node: true
+tailscale_interface: "tailscale0"
+
+# Firewall — additional interfaces to route through VPN
+firewall_mangle_interfaces:
+  - "tailscale0"
+
+# AdGuard Home
+adguard_listen_port: 3053
+adguard_config_path: "/etc/AdGuardHome/config.yaml"
+adguard_http_port: 3000
+adguard_cache_size: 4194304
+adguard_filters:
+  - name: "AdGuard DNS filter"
+    url: "https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt"
+    id: 1
+    enabled: true
+  - name: "AdAway Default Blocklist"
+    url: "https://adaway.org/hosts.txt"
+    id: 2
+    enabled: false
+  - name: "Hblock"
+    url: "https://hblock.molinero.dev/hosts"
+    id: 1770987634
+    enabled: true
+  - name: "Someonewhocares"
+    url: "https://someonewhocares.org/hosts/hosts"
+    id: 1770987635
+    enabled: true
+  - name: "LIT: EasyList Lithuania"
+    url: "https://adguardteam.github.io/HostlistsRegistry/assets/filter_36.txt"
+    id: 1770987636
+    enabled: true
+
+# dnsmasq
+dnsmasq_forward_to: "127.0.0.1#{{ adguard_listen_port }}"

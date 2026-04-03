@@ -1,0 +1,11 @@
+:80 {
+    @api host sea-battle-api.tkozakas.online
+    handle @api {
+        reverse_proxy backend:8080
+    }
+
+    @web host sea-battle.tkozakas.online
+    handle @web {
+        reverse_proxy frontend:80
+    }
+}

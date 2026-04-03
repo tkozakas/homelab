@@ -1,0 +1,38 @@
+services:
+  bot:
+    profiles: ["prod"]
+    container_name: got
+    image: ghcr.io/tkozakas/got:latest
+    env_file:
+      - .env
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/telebot?sslmode=disable
+      REDIS_ADDR: redis:6379
+    volumes:
+      - ./.env:/app/.env:ro
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    container_name: bot-postgres
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: telebot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    container_name: bot-redis
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:

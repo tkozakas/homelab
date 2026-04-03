@@ -1,0 +1,20 @@
+---
+- name: Set hostname
+  raw: uci set system.@system[0].hostname='{{ router_hostname }}'
+
+- name: Set timezone
+  raw: |
+    uci set system.@system[0].timezone='{{ timezone }}'
+    uci set system.@system[0].zonename='{{ timezone_name }}'
+
+- name: Commit system config
+  raw: uci commit system
+
+- name: Set WAN DNS
+  raw: |
+    uci set network.wan.peerdns='{{ wan_peerdns }}'
+    uci set network.wan.dns='{{ wan_dns }}'
+    uci set network.wan.metric='{{ wan_metric }}'
+
+- name: Commit network config
+  raw: uci commit network

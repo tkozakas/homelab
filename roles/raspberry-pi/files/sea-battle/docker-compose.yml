@@ -1,0 +1,54 @@
+services:
+  backend:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/sea-battle-server:main
+    expose:
+      - "8080"
+    environment:
+      - PORT=8080
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - TURN_TIMEOUT=30s
+      - RECONNECT_GRACE=60s
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/sea-battle-web:main
+    expose:
+      - "80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  caddy:
+    profiles: ["prod"]
+    image: caddy:alpine
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  tunnel:
+    profiles: ["prod"]
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - caddy
+    restart: unless-stopped

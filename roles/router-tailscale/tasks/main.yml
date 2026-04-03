@@ -1,0 +1,9 @@
+---
+- name: Check Tailscale status
+  raw: tailscale status 2>&1 || echo "Tailscale not running"
+  register: ts_status
+  changed_when: false
+
+- name: Tailscale status
+  debug:
+    msg: "{{ ts_status.stdout_lines | default(['not running']) }}"

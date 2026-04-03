@@ -1,0 +1,46 @@
+services:
+  backend:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/sauktiniai-backend:main
+    expose:
+      - "8080"
+    environment:
+      - PORT=8080
+      - CORS_ORIGINS=http://caddy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  frontend:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/sauktiniai-frontend:main
+    expose:
+      - "3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    profiles: ["prod"]
+    image: caddy:alpine
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  tunnel:
+    profiles: ["prod"]
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - caddy
+    restart: unless-stopped
