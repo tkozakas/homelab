@@ -1,6 +1,6 @@
 # homelab
 
-Absurdly over-engineered and completely unnecessary Ansible automation for two devices. One command to rebuild everything from zero. If you're reading this, you're lost.
+Absurdly over-engineered and completely unnecessary Ansible automation for my home setup.
 
 ## Hosts
 
