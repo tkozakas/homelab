@@ -1,0 +1,74 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone_name }}"
+  become: yes
+
+- name: Install base packages
+  apt:
+    name: "{{ pi_base_packages }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: Enable unattended-upgrades
+  systemd:
+    name: unattended-upgrades
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Detect OS codename
+  command: lsb_release -cs
+  register: pi_codename
+  changed_when: false
+
+- name: Add Docker signing key
+  get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+    force: false
+  become: yes
+
+- name: Add Docker apt repository
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | replace('aarch64','arm64') | replace('x86_64','amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ pi_codename.stdout }} stable"
+    filename: docker
+    state: present
+  become: yes
+
+- name: Ensure /etc/apt/keyrings exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  become: yes
+
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Enable and start Docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  loop: "{{ pi_docker_users }}"
+  become: yes
