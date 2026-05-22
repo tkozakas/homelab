@@ -1,19 +1,15 @@
 ---
-# Route Tailscale exit node traffic through WireGuard VPN.
-# GL.iNet's rtp2.sh only adds br-lan/ovpnserver/wgserver to ROUTE_POLICY.
-
 - name: Deploy custom firewall rules
   raw: |
     cat > /etc/firewall.user << 'FIREWALL_EOF'
     {{ lookup('template', 'firewall.user.j2') }}
     FIREWALL_EOF
+  notify: Reload firewall
 
-- name: Ensure mangle rules are active
+- name: Ensure mangle rules are active now (covers first run before firewall reload)
   raw: |
     {% for iface in firewall_mangle_interfaces %}
     iptables -t mangle -C PREROUTING -i {{ iface }} -j ROUTE_POLICY 2>/dev/null || \
-    iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY
+      iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY
     {% endfor %}
-
-- name: Reload firewall
-  raw: /etc/init.d/firewall reload
+  changed_when: false

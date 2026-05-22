@@ -1,10 +1,27 @@
 ---
-# dnsmasq(:53) -> AdGuard Home(:3053) -> dnsforge.de (DoH/DoT)
+# dnsmasq(:53)         -> AdGuard Home(:3053) -> dnsforge.de (DoH/DoT)
+# wgclient1 dnsmasq    -> stubby(:5453)       -> dnsforge.de (DoT)
+
+- name: Configure stubby resolvers (dnsforge DoT)
+  raw: |
+    while uci -q delete stubby.@resolver[0]; do :; done
+    {% for r in stubby_resolvers %}
+    cfg=$(uci add stubby resolver)
+    uci set stubby.${cfg}.address='{{ r.address }}'
+    uci set stubby.${cfg}.tls_auth_name='{{ r.tls_auth_name }}'
+    {% endfor %}
+    uci set stubby.global.enabled='1'
+    uci commit stubby
+
+- name: Enable and (re)start stubby
+  raw: |
+    /etc/init.d/stubby enable
+    /etc/init.d/stubby restart
 
 - name: Configure dnsmasq forwarding to AdGuard Home
   raw: |
     uci set dhcp.@dnsmasq[0].noresolv='1'
-    uci delete dhcp.@dnsmasq[0].server 2>/dev/null
+    uci -q delete dhcp.@dnsmasq[0].server
     uci add_list dhcp.@dnsmasq[0].server='{{ dnsmasq_forward_to }}'
     uci add_list dhcp.@dnsmasq[0].server='/use-application-dns.net/'
     uci set dhcp.@dnsmasq[0].localuse='0'
@@ -15,8 +32,8 @@
 
 - name: Configure VPN dnsmasq instance
   raw: |
-    uci delete dhcp.wgclient1.server 2>/dev/null
-    uci add_list dhcp.wgclient1.server='{{ dnsmasq_forward_to }}'
+    uci -q delete dhcp.wgclient1.server
+    uci add_list dhcp.wgclient1.server='{{ vpn_dnsmasq_forward_to }}'
     uci add_list dhcp.wgclient1.server='/use-application-dns.net/'
     uci set dhcp.wgclient1.noresolv='1'
 

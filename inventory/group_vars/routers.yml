@@ -16,3 +16,12 @@ adguard_config_path: "/etc/AdGuardHome/config.yaml"
 
 # dnsmasq
 dnsmasq_forward_to: "127.0.0.1#{{ adguard_listen_port }}"
+
+# Stubby (DoT proxy on 127.0.0.1:5453) — upstream for VPN dnsmasq
+stubby_listen_port: 5453
+stubby_resolvers:
+  - { address: "176.9.93.198", tls_auth_name: "dnsforge.de" }
+  - { address: "176.9.1.117",  tls_auth_name: "dnsforge.de" }
+
+# VPN clients bypass AdGuard: wgclient1 dnsmasq -> stubby (DoT) -> dnsforge
+vpn_dnsmasq_forward_to: "127.0.0.1#{{ stubby_listen_port }}"

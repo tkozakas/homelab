@@ -1,0 +1,74 @@
+---
+- name: Ensure prerequisites are installed
+  apt:
+    name:
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Detect OS codename
+  command: lsb_release -cs
+  register: ts_codename
+  changed_when: false
+
+- name: Detect distro id
+  command: lsb_release -is
+  register: ts_distro
+  changed_when: false
+
+- name: Add Tailscale signing key
+  get_url:
+    url: "https://pkgs.tailscale.com/stable/{{ ts_distro.stdout | lower }}/{{ ts_codename.stdout }}.noarmor.gpg"
+    dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+    mode: "0644"
+  become: yes
+
+- name: Add Tailscale apt repository
+  get_url:
+    url: "https://pkgs.tailscale.com/stable/{{ ts_distro.stdout | lower }}/{{ ts_codename.stdout }}.tailscale-keyring.list"
+    dest: /etc/apt/sources.list.d/tailscale.list
+    mode: "0644"
+  become: yes
+
+- name: Install Tailscale
+  apt:
+    name: tailscale
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Enable and start tailscaled
+  systemd:
+    name: tailscaled
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Get Tailscale backend state
+  command: tailscale status --json
+  register: ts_status
+  changed_when: false
+  failed_when: false
+  become: yes
+
+- name: Bring Tailscale up
+  command: "tailscale up --authkey={{ tailscale_authkey }} --hostname={{ tailscale_hostname }} {{ tailscale_up_args }}"
+  when:
+    - tailscale_authkey | length > 0
+    - ts_status.rc != 0 or (ts_status.stdout | from_json).BackendState != 'Running'
+  no_log: true
+  become: yes
+
+- name: Show Tailscale IPv4
+  command: tailscale ip -4
+  register: ts_ip
+  changed_when: false
+  failed_when: false
+  become: yes
+
+- name: Report Tailscale status
+  debug:
+    msg: "{{ inventory_hostname }} Tailscale IP: {{ ts_ip.stdout_lines | first | default('not logged in') }}"

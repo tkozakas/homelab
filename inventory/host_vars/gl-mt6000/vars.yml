@@ -28,7 +28,7 @@ wireguard_endpoint: "138.199.50.129:51820"
 wireguard_address_v4: "10.2.0.2/32"
 wireguard_public_key: "A1lZjTXsjqmvmehp9i0zV+jzl89Vf2y2fXxeMRSjp18="
 wireguard_keepalive: "25"
-wireguard_mtu: "1420"
+wireguard_mtu: "1380"
 
 # Tailscale
 tailscale_enabled: true

@@ -1,24 +1,30 @@
 ---
-- name: Enable WireGuard client
+- name: Enable WireGuard client and set MTU
   raw: |
     uci set network.{{ wireguard_interface }}.disabled='0'
+    uci set network.{{ wireguard_interface }}.mtu='{{ wireguard_mtu }}'
     uci commit network
   when: wireguard_enabled
+  notify: Reload network
 
 - name: Verify WireGuard status
   raw: wg show {{ wireguard_interface }} 2>&1 || echo "WireGuard not running"
   register: wg_status
   changed_when: false
+  check_mode: false
 
 - name: WireGuard status
   debug:
     msg: "{{ wg_status.stdout_lines | default(['not running']) }}"
 
 - name: Verify VPN routing table
-  raw: ip route show table {{ wireguard_routing_table }}
+  raw: ip route show table {{ wireguard_routing_table }} 2>&1 || echo "(routing table empty / WG disabled)"
   register: wg_routes
   changed_when: false
+  check_mode: false
+  when: wireguard_enabled
 
 - name: VPN routes
   debug:
-    msg: "{{ wg_routes.stdout_lines }}"
+    msg: "{{ wg_routes.stdout_lines | default(['(WG disabled)']) }}"
+  when: wireguard_enabled

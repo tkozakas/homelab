@@ -1,0 +1,4 @@
+---
+tailscale_authkey: "{{ vault_tailscale_authkey | default('') }}"
+tailscale_hostname: "{{ inventory_hostname }}"
+tailscale_up_args: ""
