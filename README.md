@@ -1,6 +1,6 @@
 # homelab
 
-Absurdly over-engineered and completely unnecessary Ansible automation for my home setup.
+Ansible automation for my home setup.
 
 ## Hosts
 
