@@ -1,0 +1,17 @@
+services:
+  pimon:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/pimon:main
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - INTERVAL=${INTERVAL:-60}
+      - HOST_LABEL=${HOST_LABEL:-pi}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/host:ro
+      - state:/state
+    restart: unless-stopped
+
+volumes:
+  state:

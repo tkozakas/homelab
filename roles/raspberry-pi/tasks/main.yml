@@ -33,7 +33,7 @@
     owner: "{{ ansible_user }}"
     mode: "0644"
   loop: "{{ stacks }}"
-  when: item.name not in ['got', 'githuber']
+  when: item.name not in ['got', 'githuber', 'pimon']
 
 - name: Deploy webhook script
   copy:
