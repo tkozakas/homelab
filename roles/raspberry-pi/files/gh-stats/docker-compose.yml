@@ -78,10 +78,3 @@ services:
     depends_on:
       - caddy
     restart: unless-stopped
-    networks:
-      - default
-      - ingress
-
-networks:
-  ingress:
-    external: true
