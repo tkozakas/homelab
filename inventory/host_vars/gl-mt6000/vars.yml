@@ -53,6 +53,10 @@ adguard_filters:
     url: "https://adaway.org/hosts.txt"
     id: 2
     enabled: false
+  - name: "AdGuard Tracking Protection"
+    url: "https://adguardteam.github.io/HostlistsRegistry/assets/filter_3.txt"
+    id: 3
+    enabled: true
   - name: "Hblock"
     url: "https://hblock.molinero.dev/hosts"
     id: 1770987634
@@ -64,6 +68,30 @@ adguard_filters:
   - name: "LIT: EasyList Lithuania"
     url: "https://adguardteam.github.io/HostlistsRegistry/assets/filter_36.txt"
     id: 1770987636
+    enabled: true
+  - name: "HaGeZi Multi PRO"
+    url: "https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@latest/adblock/pro.txt"
+    id: 1770987637
+    enabled: true
+  - name: "OISD Big"
+    url: "https://big.oisd.nl"
+    id: 1770987638
+    enabled: true
+  - name: "Phishing Army Extended"
+    url: "https://phishing.army/download/phishing_army_blocklist_extended.txt"
+    id: 1770987639
+    enabled: true
+  - name: "AdGuard DNS Popup Hosts"
+    url: "https://adguardteam.github.io/HostlistsRegistry/assets/filter_59.txt"
+    id: 1770987640
+    enabled: true
+  - name: "RU: RuAdList + EasyList (Schakal)"
+    url: "https://schakal.ru/hosts/alive_hosts.txt"
+    id: 1770987641
+    enabled: true
+  - name: "RU: AdGuard Russian filter"
+    url: "https://filters.adtidy.org/extension/ublock/filters/1.txt"
+    id: 1770987642
     enabled: true
 
 # dnsmasq
