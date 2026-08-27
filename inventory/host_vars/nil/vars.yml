@@ -11,3 +11,5 @@ stacks:
     profile: prod
   - name: gh-stats
     profile: prod
+  - name: githuber
+    profile: prod

@@ -29,7 +29,7 @@
     owner: "{{ ansible_user }}"
     mode: "0644"
   loop: "{{ stacks }}"
-  when: item.name != 'got'
+  when: item.name not in ['got', 'githuber']
 
 - name: Deploy gh-stats webhook config
   copy:
