@@ -7,6 +7,10 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - INTERVAL=${INTERVAL:-60}
       - HOST_LABEL=${HOST_LABEL:-pi}
+      - DEPLOY_TOKEN=${DEPLOY_TOKEN:-}
+      - GHCR_TOKEN=${GHCR_TOKEN:-}
+      - ROUTER_CHECK=${ROUTER_CHECK:-192.168.8.1:53}
+      - WAN_CHECK=${WAN_CHECK:-1.1.1.1:443}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /:/host:ro
