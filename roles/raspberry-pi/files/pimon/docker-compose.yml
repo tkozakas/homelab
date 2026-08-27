@@ -12,6 +12,7 @@ services:
       - DEPLOY_URL=${DEPLOY_URL:-}
       - ROUTER_CHECK=${ROUTER_CHECK:-192.168.8.1:53}
       - WAN_CHECK=${WAN_CHECK:-1.1.1.1:443}
+      - ADGUARD_URL=${ADGUARD_URL:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /:/host:ro

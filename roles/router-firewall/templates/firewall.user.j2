@@ -2,7 +2,10 @@
 # Custom iptables rules — sourced by /etc/init.d/firewall on every reload.
 
 {% for iface in firewall_mangle_interfaces %}
-# Route {{ iface }} traffic through VPN via ROUTE_POLICY chain (idempotent)
-iptables -t mangle -C PREROUTING -i {{ iface }} -j ROUTE_POLICY 2>/dev/null || \
-  iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY
+# Route {{ iface }} traffic through VPN via ROUTE_POLICY chain (skipped if chain absent, idempotent)
+iptables -t mangle -nL ROUTE_POLICY >/dev/null 2>&1 && {
+  iptables -t mangle -C PREROUTING -i {{ iface }} -j ROUTE_POLICY 2>/dev/null || \
+    iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY
+}
 {% endfor %}
+exit 0

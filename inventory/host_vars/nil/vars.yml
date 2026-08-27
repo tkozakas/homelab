@@ -21,3 +21,5 @@ stacks:
   - name: pimon
     profile: prod
     deploy: true
+  - name: vaultwarden
+    profile: prod

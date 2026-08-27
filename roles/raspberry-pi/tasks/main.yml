@@ -3,6 +3,12 @@
   getent:
     database: group
     key: docker
+
+- name: Ensure ingress network exists
+  shell: docker network inspect ingress >/dev/null 2>&1 || docker network create ingress
+  register: ingress_network
+  changed_when: ingress_network.stdout != ""
+
 - name: Ensure svc directories exist
   file:
     path: "{{ svc_dir }}/{{ item.name }}"
@@ -33,7 +39,7 @@
     owner: "{{ ansible_user }}"
     mode: "0644"
   loop: "{{ stacks }}"
-  when: item.name not in ['got', 'githuber', 'pimon']
+  when: item.name not in ['got', 'githuber', 'pimon', 'vaultwarden']
 
 - name: Deploy webhook script
   copy:

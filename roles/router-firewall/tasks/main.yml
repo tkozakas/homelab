@@ -9,7 +9,10 @@
 - name: Ensure mangle rules are active now (covers first run before firewall reload)
   raw: |
     {% for iface in firewall_mangle_interfaces %}
-    iptables -t mangle -C PREROUTING -i {{ iface }} -j ROUTE_POLICY 2>/dev/null || \
-      iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY
+    iptables -t mangle -nL ROUTE_POLICY >/dev/null 2>&1 && {
+      iptables -t mangle -C PREROUTING -i {{ iface }} -j ROUTE_POLICY 2>/dev/null || \
+        iptables -t mangle -A PREROUTING -i {{ iface }} -j ROUTE_POLICY
+    }
     {% endfor %}
+    exit 0
   changed_when: false

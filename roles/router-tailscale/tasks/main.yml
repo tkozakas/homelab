@@ -1,4 +1,8 @@
 ---
+- name: Advertise LAN subnet route
+  raw: tailscale set --advertise-routes=192.168.8.0/24
+  changed_when: false
+
 - name: Check Tailscale status
   raw: tailscale status 2>&1 || echo "Tailscale not running"
   register: ts_status
