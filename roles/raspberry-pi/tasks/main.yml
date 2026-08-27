@@ -1,4 +1,8 @@
 ---
+- name: Read docker group id
+  getent:
+    database: group
+    key: docker
 - name: Ensure svc directories exist
   file:
     path: "{{ svc_dir }}/{{ item.name }}"
@@ -31,15 +35,30 @@
   loop: "{{ stacks }}"
   when: item.name not in ['got', 'githuber']
 
-- name: Deploy gh-stats webhook config
+- name: Deploy webhook script
   copy:
-    src: "gh-stats/deploy/{{ item }}"
-    dest: "{{ svc_dir }}/gh-stats/deploy/{{ item }}"
+    src: "gh-stats/deploy/deploy.sh"
+    dest: "{{ svc_dir }}/gh-stats/deploy/deploy.sh"
     owner: "{{ ansible_user }}"
     mode: "0755"
-  loop:
-    - hooks.json
-    - deploy.sh
+
+- name: Deploy webhook hooks
+  template:
+    src: hooks.json.j2
+    dest: "{{ svc_dir }}/gh-stats/deploy/hooks.json"
+    owner: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Install static docker cli for webhook
+  shell: |
+    set -e
+    curl -fsSL https://download.docker.com/linux/static/stable/aarch64/docker-27.5.1.tgz | tar -xz -C /tmp docker/docker
+    install -D -o {{ ansible_user }} /tmp/docker/docker {{ svc_dir }}/gh-stats/deploy/bin/docker
+    curl -fsSL -o {{ svc_dir }}/gh-stats/deploy/bin/docker-compose https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-linux-aarch64
+    chown {{ ansible_user }} {{ svc_dir }}/gh-stats/deploy/bin/docker-compose
+    chmod 755 {{ svc_dir }}/gh-stats/deploy/bin/docker-compose
+  args:
+    creates: "{{ svc_dir }}/gh-stats/deploy/bin/docker-compose"
 
 - name: Deploy .env files from vault
   template:

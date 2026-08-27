@@ -5,11 +5,16 @@ svc_dir: "/home/user/svc"
 stacks:
   - name: sea-battle
     profile: prod
+    deploy: true
   - name: got
     profile: prod
+    deploy: true
   - name: sauktiniai
     profile: prod
+    deploy: true
   - name: gh-stats
     profile: prod
+    deploy: true
   - name: githuber
     profile: prod
+    deploy: true

@@ -1,0 +1,20 @@
+[
+{% for stack in stacks if stack.deploy | default(false) %}
+  {
+    "id": "deploy-{{ stack.name }}",
+    "execute-command": "/scripts/deploy.sh",
+    "command-working-directory": "{{ svc_dir }}/{{ stack.name }}",
+    "response-message": "Deployment triggered",
+    "trigger-rule": {
+      "match": {
+        "type": "value",
+        "value": "{% raw %}{{ getenv "DEPLOY_TOKEN" | js }}{% endraw %}",
+        "parameter": {
+          "source": "header",
+          "name": "Authorization"
+        }
+      }
+    }
+  }{{ "," if not loop.last }}
+{% endfor %}
+]
