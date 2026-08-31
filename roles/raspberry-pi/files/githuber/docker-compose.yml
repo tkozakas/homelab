@@ -7,12 +7,21 @@ services:
       - GITHUB_API_URL=${GITHUB_API_URL:-https://api.github.com}
       - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
       - SLACK_CHANNEL=${SLACK_CHANNEL}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET:-}
+      - WEBHOOK_PORT=${WEBHOOK_PORT:-8080}
       - POLL_INTERVAL=${POLL_INTERVAL:-60}
       - WEBHOOK_SECRET=${WEBHOOK_SECRET:-}
       - WEBHOOK_PORT=${WEBHOOK_PORT:-0}
     volumes:
       - state:/state
+    networks:
+      - default
+      - ingress
     restart: unless-stopped
 
 volumes:
   state:
+
+networks:
+  ingress:
+    external: true

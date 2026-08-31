@@ -57,6 +57,9 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - default
+      - ingress
     restart: unless-stopped
 
   tunnel:
@@ -78,3 +81,7 @@ services:
     depends_on:
       - caddy
     restart: unless-stopped
+
+networks:
+  ingress:
+    external: true
