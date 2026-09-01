@@ -11,7 +11,6 @@ services:
       - WEBHOOK_PORT=${WEBHOOK_PORT:-8080}
       - POLL_INTERVAL=${POLL_INTERVAL:-60}
       - WEBHOOK_SECRET=${WEBHOOK_SECRET:-}
-      - WEBHOOK_PORT=${WEBHOOK_PORT:-0}
     volumes:
       - state:/state
     networks:
