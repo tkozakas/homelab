@@ -2,8 +2,8 @@
 
 Infrastructure for self-hosting my projects. Every project ships as a Docker stack:
 push to its repo, CI builds the image and calls a deploy webhook, the host pulls and
-restarts it. Ansible keeps the host and router converged from this repo, secrets live
-in an encrypted vault, and a Taskfile automates adding new stacks end to end.
+restarts it. Secrets live in an encrypted vault, and a Taskfile automates adding
+new stacks end to end.
 
 ## Hosts
 
