@@ -30,25 +30,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  webhook:
-    profiles: ["prod"]
-    image: almir/webhook:latest
-    volumes:
-      - ./deploy/hooks.json:/etc/webhook/hooks.json:ro
-      - ./deploy/deploy.sh:/scripts/deploy.sh:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./deploy/bin/docker:/usr/local/bin/docker:ro
-      - ./deploy/bin/docker-compose:/usr/local/lib/docker/cli-plugins/docker-compose:ro
-      - ${SVC_DIR}:${SVC_DIR}:ro
-      - ${DOCKER_AUTH}:/etc/docker-auth:ro
-    group_add:
-      - "${DOCKER_GID}"
-    environment:
-      - DEPLOY_TOKEN=${DEPLOY_TOKEN}
-      - DOCKER_CONFIG=/etc/docker-auth
-    command: ["-verbose", "-template", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
-    restart: unless-stopped
-
   caddy:
     profiles: ["prod"]
     image: caddy:alpine
@@ -58,8 +39,12 @@ services:
       - frontend
       - backend
     networks:
-      - default
-      - ingress
+      default: {}
+      ingress:
+        aliases: [ghstats]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:80"]
+      interval: 60s
     restart: unless-stopped
 
   tunnel:
@@ -68,16 +53,6 @@ services:
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-    depends_on:
-      - caddy
-    restart: unless-stopped
-
-  hooks-tunnel:
-    profiles: ["prod"]
-    image: cloudflare/cloudflared:latest
-    command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${HOOKS_TUNNEL_TOKEN}
     depends_on:
       - caddy
     restart: unless-stopped

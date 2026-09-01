@@ -3,7 +3,7 @@
 ## Build
 
 1. Ask user: name, purpose, secrets.
-2. Write code in `~/Documents/<name>`. Copy `pipeline.yml` from existing repo.
+2. `task scaffold NAME=<name>`. Rename stackapp, write logic.
 3. Lint and test until green.
 4. Run there: `task -t ~/Documents/homelab/Taskfile.yml repo NAME=<name>`
 

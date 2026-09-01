@@ -18,9 +18,9 @@
     mode: "0755"
   loop: "{{ stacks }}"
 
-- name: Ensure gh-stats deploy directory exists
+- name: Ensure ingress deploy directory exists
   file:
-    path: "{{ svc_dir }}/gh-stats/deploy"
+    path: "{{ svc_dir }}/ingress/deploy"
     state: directory
     owner: "{{ ansible_user }}"
     mode: "0755"
@@ -40,32 +40,54 @@
     owner: "{{ ansible_user }}"
     mode: "0644"
   loop: "{{ stacks }}"
-  when: item.name not in ['got', 'githuber', 'pimon']
+  when: item.caddy | default(false)
 
 - name: Deploy webhook script
   copy:
-    src: "gh-stats/deploy/deploy.sh"
-    dest: "{{ svc_dir }}/gh-stats/deploy/deploy.sh"
+    src: "ingress/deploy/deploy.sh"
+    dest: "{{ svc_dir }}/ingress/deploy/deploy.sh"
     owner: "{{ ansible_user }}"
     mode: "0755"
 
 - name: Deploy webhook hooks
   template:
     src: hooks.json.j2
-    dest: "{{ svc_dir }}/gh-stats/deploy/hooks.json"
+    dest: "{{ svc_dir }}/ingress/deploy/hooks.json"
     owner: "{{ ansible_user }}"
     mode: "0644"
 
 - name: Install static docker cli for webhook
   shell: |
     set -e
-    curl -fsSL https://download.docker.com/linux/static/stable/aarch64/docker-27.5.1.tgz | tar -xz -C /tmp docker/docker
-    install -D -o {{ ansible_user }} /tmp/docker/docker {{ svc_dir }}/gh-stats/deploy/bin/docker
-    curl -fsSL -o {{ svc_dir }}/gh-stats/deploy/bin/docker-compose https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-linux-aarch64
-    chown {{ ansible_user }} {{ svc_dir }}/gh-stats/deploy/bin/docker-compose
-    chmod 755 {{ svc_dir }}/gh-stats/deploy/bin/docker-compose
+    curl -fsSL https://download.docker.com/linux/static/stable/{{ ansible_architecture }}/docker-{{ docker_cli_version }}.tgz | tar -xz -C /tmp docker/docker
+    install -D -o {{ ansible_user }} /tmp/docker/docker {{ svc_dir }}/ingress/deploy/bin/docker
+    curl -fsSL -o {{ svc_dir }}/ingress/deploy/bin/docker-compose https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}
+    chown {{ ansible_user }} {{ svc_dir }}/ingress/deploy/bin/docker-compose
+    chmod 755 {{ svc_dir }}/ingress/deploy/bin/docker-compose
   args:
-    creates: "{{ svc_dir }}/gh-stats/deploy/bin/docker-compose"
+    creates: "{{ svc_dir }}/ingress/deploy/bin/docker-compose"
+
+- name: Ensure backups directory exists
+  file:
+    path: "{{ svc_dir | dirname }}/backups"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Deploy backup script
+  template:
+    src: backup.sh.j2
+    dest: /usr/local/bin/homelab-backup
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Schedule nightly volume backups
+  cron:
+    name: homelab-backup
+    user: "{{ ansible_user }}"
+    minute: "30"
+    hour: "3"
+    job: "/usr/local/bin/homelab-backup >> {{ svc_dir | dirname }}/backups/backup.log 2>&1"
 
 
 - name: Deploy .env files from vault

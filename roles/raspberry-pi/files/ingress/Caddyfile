@@ -1,0 +1,13 @@
+:80 {
+    handle /hooks/* {
+        reverse_proxy webhook:9000
+    }
+
+    handle /slack/* {
+        reverse_proxy githuber:8080
+    }
+
+    handle {
+        reverse_proxy ghstats:80
+    }
+}

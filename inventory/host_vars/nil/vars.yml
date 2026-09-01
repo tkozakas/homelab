@@ -3,18 +3,24 @@ pi_hostname: "nil"
 svc_dir: "/home/{{ vault_pi_user }}/svc"
 
 stacks:
+  - name: ingress
+    profile: prod
+    caddy: true
   - name: sea-battle
     profile: prod
     deploy: true
+    caddy: true
   - name: got
     profile: prod
     deploy: true
   - name: sauktiniai
     profile: prod
     deploy: true
+    caddy: true
   - name: gh-stats
     profile: prod
     deploy: true
+    caddy: true
   - name: githuber
     profile: prod
     deploy: true

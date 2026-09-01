@@ -4,6 +4,7 @@ dotenv: [".taskconfig"]
 
 vars:
   HOST_SSH: ssh -i $HOST_SSH_KEY -o BatchMode=yes $HOST_USER@$HOST_ADDR
+  CLONE_DIR: '{{.CLONE_DIR | default "$HOME/Documents"}}'
   VAULT_FILE: inventory/host_vars/$HOST_VARS/vault.yml
   ANSIBLE_OVERRIDES: >-
     -e "{\"ansible_password\": null, \"ansible_become_password\": null,
@@ -23,8 +24,16 @@ tasks:
     cmds:
       - python3 scripts/new-stack.py {{.NAME}}
 
+  scaffold:
+    desc: "Create project from template: task scaffold NAME=<name>"
+    requires:
+      vars: [NAME]
+    dir: "{{.CLONE_DIR}}"
+    cmds:
+      - gh repo create $GH_OWNER/{{.NAME}} --private --template $GH_OWNER/stack-template --clone
+
   repo:
-    desc: "Create the project repo and deploy secrets: task repo NAME=<name> (run inside the project directory)"
+    desc: "Create the repo and deploy secrets for a pre-existing project: task repo NAME=<name> (run inside the project directory)"
     requires:
       vars: [NAME]
     dir: "{{.USER_WORKING_DIR}}"
@@ -43,6 +52,11 @@ tasks:
     desc: Validate playbook syntax
     cmds:
       - ansible-playbook $PLAYBOOK --syntax-check
+
+  diff:
+    desc: Preview playbook changes
+    cmds:
+      - ansible-playbook $PLAYBOOK --check --diff {{.ANSIBLE_OVERRIDES}}
 
   deploy:
     desc: Run the playbook

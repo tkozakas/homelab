@@ -16,6 +16,10 @@ services:
     networks:
       - default
       - ingress
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os,sys,time; sys.exit(0 if time.time()-os.path.getmtime('/state/state.json')<300 else 1)"]
+      interval: 60s
+      start_period: 120s
     restart: unless-stopped
 
 volumes:

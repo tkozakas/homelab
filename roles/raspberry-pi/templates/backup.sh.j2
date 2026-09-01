@@ -1,0 +1,48 @@
+#!/bin/sh
+set -u
+
+BACKUP_DIR="{{ svc_dir | dirname }}/backups"
+REMOTE="{{ backup_remote | default('') }}"
+KEEP=14
+STAMP="$(date +%Y%m%d-%H%M%S)"
+
+mkdir -p "$BACKUP_DIR"
+
+{% raw %}
+backup_volume() {
+    docker run --rm -v "$1":/src:ro -v "$BACKUP_DIR":/backup alpine \
+        tar -czf "/backup/$1-$STAMP.tar.gz" -C /src .
+}
+
+dump_postgres() {
+    if docker exec "$1" pg_dumpall -U postgres > "$BACKUP_DIR/$2-$STAMP.sql"; then
+        gzip -f "$BACKUP_DIR/$2-$STAMP.sql"
+    else
+        rm -f "$BACKUP_DIR/$2-$STAMP.sql"
+        return 1
+    fi
+}
+
+prune() {
+    ls -1t "$BACKUP_DIR/$1"-*.gz 2>/dev/null | tail -n +$((KEEP + 1)) | xargs rm -f
+}
+
+for vol in $(docker volume ls -q); do
+    case "$vol" in
+        *_state|*_data|*-data) ;;
+        *) continue ;;
+    esac
+    pg_container="$(docker ps --filter "volume=$vol" --format '{{.Names}}' | grep postgres | head -n 1)"
+    if [ -n "$pg_container" ]; then
+        dump_postgres "$pg_container" "$vol" || backup_volume "$vol"
+    else
+        backup_volume "$vol"
+    fi
+    prune "$vol"
+done
+
+if [ -n "$REMOTE" ]; then
+    scp "$BACKUP_DIR"/*"$STAMP"*.gz "$REMOTE" || echo "remote ship failed, keeping local copies only"
+    ssh "${REMOTE%%:*}" "find ${REMOTE#*:} -name '*.gz' -mtime +$KEEP -delete" || echo "remote cleanup failed"
+fi
+{% endraw %}

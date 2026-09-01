@@ -6,14 +6,28 @@
     "command-working-directory": "{{ svc_dir }}/{{ stack.name }}",
     "response-message": "Deployment triggered",
     "trigger-rule": {
-      "match": {
-        "type": "value",
-        "value": "{% raw %}{{ getenv "DEPLOY_TOKEN" | js }}{% endraw %}",
-        "parameter": {
-          "source": "header",
-          "name": "Authorization"
+      "or": [
+        {
+          "match": {
+            "type": "value",
+            "value": "{% raw %}{{ getenv "DEPLOY_TOKEN_{% endraw %}{{ stack.name | replace('-', '_') | upper }}{% raw %}" | js }}{% endraw %}",
+            "parameter": {
+              "source": "header",
+              "name": "Authorization"
+            }
+          }
+        },
+        {
+          "match": {
+            "type": "value",
+            "value": "{% raw %}{{ getenv "DEPLOY_TOKEN" | js }}{% endraw %}",
+            "parameter": {
+              "source": "header",
+              "name": "Authorization"
+            }
+          }
         }
-      }
+      ]
     }
   }{{ "," if not loop.last }}
 {% endfor %}
