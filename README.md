@@ -31,4 +31,4 @@ ansible-playbook playbooks/raspberry-pi.yml
 ansible-playbook playbooks/verify.yml
 ```
 
-New project? Follow AGENTS.md.
+New project? Follow [AGENTS.md](AGENTS.md).
