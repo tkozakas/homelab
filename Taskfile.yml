@@ -1,0 +1,87 @@
+version: "3"
+
+dotenv: [".taskconfig"]
+
+vars:
+  HOST_SSH: ssh -i $HOST_SSH_KEY -o BatchMode=yes $HOST_USER@$HOST_ADDR
+  VAULT_FILE: inventory/host_vars/$HOST_VARS/vault.yml
+  ANSIBLE_OVERRIDES: >-
+    -e "{\"ansible_password\": null, \"ansible_become_password\": null,
+    \"ansible_ssh_private_key_file\": \"$HOST_SSH_KEY\"}"
+
+tasks:
+  default:
+    desc: List tasks
+    cmds:
+      - task --list
+    silent: true
+
+  new-stack:
+    desc: "Scaffold homelab wiring for a stack: task new-stack NAME=<name>"
+    requires:
+      vars: [NAME]
+    cmds:
+      - python3 scripts/new-stack.py {{.NAME}}
+
+  repo:
+    desc: "Create the project repo and deploy secrets: task repo NAME=<name> (run inside the project directory)"
+    requires:
+      vars: [NAME]
+    dir: "{{.USER_WORKING_DIR}}"
+    cmds:
+      - gh repo create $GH_OWNER/{{.NAME}} --private --source . --push
+      - gh secret set DEPLOY_TOKEN -R $GH_OWNER/{{.NAME}} --body "$({{.TASKFILE_DIR}}/scripts/deploy-token.sh)"
+      - gh secret set DEPLOY_URL -R $GH_OWNER/{{.NAME}} --body "$HOOKS_BASE/deploy-{{.NAME}}"
+
+  secrets:
+    desc: Edit the vault
+    interactive: true
+    cmds:
+      - ansible-vault edit {{.VAULT_FILE}}
+
+  check:
+    desc: Validate playbook syntax
+    cmds:
+      - ansible-playbook $PLAYBOOK --syntax-check
+
+  deploy:
+    desc: Run the playbook
+    cmds:
+      - ansible-playbook $PLAYBOOK {{.ANSIBLE_OVERRIDES}}
+
+  verify:
+    desc: "Show a stack's containers and logs: task verify NAME=<name>"
+    requires:
+      vars: [NAME]
+    cmds:
+      - "{{.HOST_SSH}} 'cd $HOST_SVC_DIR/{{.NAME}} && docker compose --profile prod ps && docker compose --profile prod logs --tail 20'"
+
+  logs:
+    desc: "Follow a stack's logs: task logs NAME=<name>"
+    requires:
+      vars: [NAME]
+    cmds:
+      - "{{.HOST_SSH}} 'cd $HOST_SVC_DIR/{{.NAME}} && docker compose --profile prod logs -f --tail 50'"
+
+  ci:
+    desc: "Watch the latest pipeline run: task ci NAME=<name>"
+    requires:
+      vars: [NAME]
+    cmds:
+      - gh run watch --repo $GH_OWNER/{{.NAME}} $(gh run list --repo $GH_OWNER/{{.NAME}} --limit 1 --json databaseId -q '.[0].databaseId') --exit-status
+
+  redeploy:
+    desc: "Trigger a stack's deploy hook: task redeploy NAME=<name>"
+    requires:
+      vars: [NAME]
+    cmds:
+      - >-
+        curl -sf -X POST --retry 3 --retry-all-errors
+        -H "Authorization: $(scripts/deploy-token.sh)"
+        "$HOOKS_BASE/deploy-{{.NAME}}"
+      - echo deployed
+
+  status:
+    desc: Show all containers on the host
+    cmds:
+      - "{{.HOST_SSH}} 'docker ps --format \"table {{`{{.Names}}`}}\\t{{`{{.Status}}`}}\"'"
