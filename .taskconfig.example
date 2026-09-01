@@ -1,0 +1,10 @@
+GH_OWNER=your-github-user
+REGISTRY=ghcr.io
+HOST_ADDR=host-ip
+HOST_USER=host-user
+HOST_SSH_KEY=~/.ssh/key
+HOST_SVC_DIR=~/svc
+HOST_VARS=hostname
+HOOKS_BASE=https://your-domain/hooks
+DEPLOY_TOKEN_VAULT_KEY=vault_deploy_token_key
+PLAYBOOK=playbooks/raspberry-pi.yml
