@@ -1,6 +1,6 @@
 ---
 pi_hostname: "nil"
-svc_dir: "/home/user/svc"
+svc_dir: "/home/{{ vault_pi_user }}/svc"
 
 stacks:
   - name: sea-battle
