@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import re
 import shutil
 import subprocess
@@ -11,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_REPO = "stack-template"
 LANGS = ("python", "go", "rust")
-DEST_BASE = Path.home() / "Documents"
+DEST_BASE = Path(os.environ.get("SCAFFOLD_DEST", str(Path.home() / "Documents")))
 NAME_PATTERN = r"[a-z0-9-]+"
 PLACEHOLDER = "stackapp"
 

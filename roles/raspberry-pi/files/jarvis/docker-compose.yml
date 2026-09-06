@@ -1,0 +1,47 @@
+services:
+  copilot:
+    profiles: ["prod"]
+    image: node:22-alpine
+    command: sh -c "npx copilot-api@latest start --port 4141"
+    volumes:
+      - copilot-data:/root/.local/share
+    restart: unless-stopped
+
+  jarvis:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/jarvis:main
+    depends_on:
+      - copilot
+      - agent
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - AGENT_URL=${AGENT_URL:-http://agent:8090}
+      - AGENT_TOKEN=${AGENT_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - state:/state
+    restart: unless-stopped
+
+  agent:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/agent:main
+    depends_on:
+      - copilot
+    environment:
+      - AGENT_TOKEN=${AGENT_TOKEN}
+      - GH_TOKEN=${GH_TOKEN}
+      - GH_OWNER=${GH_OWNER}
+      - DEPLOY_TOKEN=${DEPLOY_TOKEN}
+      - HOOKS_BASE=${HOOKS_BASE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /:/host:ro
+      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+      - workspace:/workspace
+    restart: unless-stopped
+
+volumes:
+  copilot-data:
+  state:
+  workspace:

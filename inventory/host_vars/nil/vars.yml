@@ -27,3 +27,6 @@ stacks:
   - name: pimon
     profile: prod
     deploy: true
+  - name: jarvis
+    profile: prod
+    deploy: true
