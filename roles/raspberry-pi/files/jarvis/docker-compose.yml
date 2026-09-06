@@ -19,6 +19,8 @@ services:
       - SANDBOX_IMAGE=${SANDBOX_IMAGE:-ghcr.io/tkozakas/jarvis-sandbox:main}
       - SANDBOX_NETWORK=${SANDBOX_NETWORK:-jarvis_default}
       - GH_TOKEN=${GH_TOKEN}
+      - SANDBOX_GH_TOKEN=${SANDBOX_GH_TOKEN}
+      - GHCR_TOKEN=${GHCR_TOKEN}
       - GH_OWNER=${GH_OWNER}
       - DEPLOY_TOKEN=${DEPLOY_TOKEN}
       - HOOKS_BASE=${HOOKS_BASE}
