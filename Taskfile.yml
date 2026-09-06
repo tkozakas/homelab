@@ -17,28 +17,6 @@ tasks:
       - task --list
     silent: true
 
-  scaffold:
-    desc: "Create project from template: task scaffold NAME=<name> LANG=<python|go|rust>"
-    requires:
-      vars: [NAME]
-    vars:
-      LANG: '{{.LANG | default "python"}}'
-      FORGE_DIR: '{{.FORGE_DIR | default "$HOME/Documents/forge"}}'
-    cmds:
-      - test -d {{.FORGE_DIR}} || gh repo clone $GH_OWNER/forge {{.FORGE_DIR}}
-      - git -C {{.FORGE_DIR}} pull -q
-      - DEPLOY_TOKEN=$({{.TASKFILE_DIR}}/scripts/deploy-token.sh) python3 {{.FORGE_DIR}}/scaffold.py {{.NAME}} {{.LANG}}
-
-  repo:
-    desc: "Create the repo and deploy secrets for a pre-existing project: task repo NAME=<name> (run inside the project directory)"
-    requires:
-      vars: [NAME]
-    dir: "{{.USER_WORKING_DIR}}"
-    cmds:
-      - gh repo create $GH_OWNER/{{.NAME}} --private --source . --push
-      - gh secret set DEPLOY_TOKEN -R $GH_OWNER/{{.NAME}} --body "$({{.TASKFILE_DIR}}/scripts/deploy-token.sh)"
-      - gh secret set DEPLOY_URL -R $GH_OWNER/{{.NAME}} --body "$HOOKS_BASE/deploy-{{.NAME}}"
-
   secrets:
     desc: Edit the vault
     interactive: true

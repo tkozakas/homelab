@@ -1,5 +1,4 @@
 GH_OWNER=your-github-user
-REGISTRY=ghcr.io
 HOST_ADDR=host-ip
 HOST_USER=host-user
 HOST_SSH_KEY=~/.ssh/key
