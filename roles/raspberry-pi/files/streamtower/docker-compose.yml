@@ -10,8 +10,8 @@ services:
       - TS_TORRDIR=/opt/ts/cache
       - TS_DONTKILL=1
     volumes:
-      - ${DATA_DIR:-/srv/torrstream}/config:/opt/ts/config
-      - ${CACHE_DIR:-/srv/torrstream/cache}:/opt/ts/cache
+      - ${DATA_DIR:-/srv/streamtower}/config:/opt/ts/config
+      - ${CACHE_DIR:-/srv/streamtower/cache}:/opt/ts/cache
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8090/echo"]
       interval: 30s
@@ -22,7 +22,7 @@ services:
 
   player:
     profiles: ["prod"]
-    image: ghcr.io/tkozakas/torrstream:main
+    image: ghcr.io/tkozakas/streamtower:main
     expose:
       - "80"
     environment:
@@ -36,7 +36,7 @@ services:
     networks:
       default: {}
       ingress:
-        aliases: [torrstream]
+        aliases: [streamtower]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/healthz"]
       interval: 30s

@@ -168,9 +168,9 @@
     }
   },
   {
-    "id": "deploy-torrstream",
+    "id": "deploy-streamtower",
     "execute-command": "/scripts/deploy.sh",
-    "command-working-directory": "{{ getenv "SVC_DIR" }}/torrstream",
+    "command-working-directory": "{{ getenv "SVC_DIR" }}/streamtower",
     "response-message": "Deployment triggered",
     "trigger-rule": {
       "match": {

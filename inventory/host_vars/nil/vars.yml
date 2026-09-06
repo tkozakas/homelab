@@ -31,6 +31,6 @@ stacks:
   - name: executor
     profile: prod
     deploy: true
-  - name: torrstream
+  - name: streamtower
     profile: prod
     deploy: true
