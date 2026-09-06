@@ -45,6 +45,9 @@ services:
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=${HOOKS_TUNNEL_TOKEN}
+    networks:
+      - default
+      - ingress
     depends_on:
       - caddy
     restart: unless-stopped
