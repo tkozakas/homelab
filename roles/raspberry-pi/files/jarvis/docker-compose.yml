@@ -24,6 +24,7 @@ services:
       - GH_OWNER=${GH_OWNER}
       - DEPLOY_TOKEN=${DEPLOY_TOKEN}
       - HOOKS_BASE=${HOOKS_BASE}
+      - EXECUTOR_TOKEN=${EXECUTOR_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - state:/state
