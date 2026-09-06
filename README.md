@@ -29,7 +29,3 @@ ansible-playbook playbooks/raspberry-pi.yml
 # verify router config
 ansible-playbook playbooks/verify.yml
 ```
-
-## For clankers
-
-New project? Follow [AGENTS.md](AGENTS.md).
