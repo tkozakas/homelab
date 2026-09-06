@@ -17,13 +17,6 @@ tasks:
       - task --list
     silent: true
 
-  new-stack:
-    desc: "Scaffold homelab wiring for a stack: task new-stack NAME=<name>"
-    requires:
-      vars: [NAME]
-    cmds:
-      - python3 scripts/new-stack.py {{.NAME}}
-
   scaffold:
     desc: "Create project from template: task scaffold NAME=<name> LANG=<python|go|rust>"
     requires:

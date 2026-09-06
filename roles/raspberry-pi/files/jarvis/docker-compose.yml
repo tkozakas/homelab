@@ -12,36 +12,37 @@ services:
     image: ghcr.io/tkozakas/jarvis:main
     depends_on:
       - copilot
-      - agent
+      - docker-proxy
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-      - AGENT_URL=${AGENT_URL:-http://agent:8090}
-      - AGENT_TOKEN=${AGENT_TOKEN}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - state:/state
-    restart: unless-stopped
-
-  agent:
-    profiles: ["prod"]
-    image: ghcr.io/tkozakas/agent:main
-    depends_on:
-      - copilot
-    environment:
-      - AGENT_TOKEN=${AGENT_TOKEN}
+      - SANDBOX_IMAGE=${SANDBOX_IMAGE:-ghcr.io/tkozakas/agent:main}
+      - SANDBOX_NETWORK=${SANDBOX_NETWORK:-jarvis_default}
       - GH_TOKEN=${GH_TOKEN}
       - GH_OWNER=${GH_OWNER}
       - DEPLOY_TOKEN=${DEPLOY_TOKEN}
       - HOOKS_BASE=${HOOKS_BASE}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /:/host:ro
-      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
-      - workspace:/workspace
+      - state:/state
+    restart: unless-stopped
+
+  docker-proxy:
+    profiles: ["prod"]
+    image: tecnativa/docker-socket-proxy:latest
+    environment:
+      - CONTAINERS=1
+      - IMAGES=1
+      - NETWORKS=1
+      - VOLUMES=1
+      - INFO=1
+      - VERSION=1
+      - PING=1
+      - POST=0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
 
 volumes:
   copilot-data:
   state:
-  workspace:
