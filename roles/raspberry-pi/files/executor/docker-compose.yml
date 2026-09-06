@@ -7,6 +7,8 @@ services:
       - VAULT_PASS=${VAULT_PASS}
       - GH_TOKEN=${GH_TOKEN}
       - GH_OWNER=${GH_OWNER}
+      - CF_API_TOKEN=${CF_API_TOKEN}
+      - CF_ZONE=${CF_ZONE}
       - DOCKER_CONFIG=/etc/docker-auth
     volumes:
       - /home/tom/svc:/svc
