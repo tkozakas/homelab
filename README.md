@@ -13,6 +13,8 @@ restarts it. Secrets live in an encrypted vault.
 
 ## Usage
 
+Copy .taskconfig.example to .taskconfig and fill in your values first.
+
 ```sh
 # list automation tasks
 task
