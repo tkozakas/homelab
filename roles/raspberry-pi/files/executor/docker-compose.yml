@@ -1,0 +1,26 @@
+services:
+  executor:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/executor:main
+    environment:
+      - EXECUTOR_TOKEN=${EXECUTOR_TOKEN}
+      - VAULT_PASS=${VAULT_PASS}
+      - GH_TOKEN=${GH_TOKEN}
+      - GH_OWNER=${GH_OWNER}
+      - DOCKER_CONFIG=/etc/docker-auth
+    volumes:
+      - /home/tom/svc:/svc
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/tom/.docker:/etc/docker-auth:ro
+      - state:/state
+    networks:
+      - jarvis
+    restart: unless-stopped
+
+networks:
+  jarvis:
+    external: true
+    name: jarvis_default
+
+volumes:
+  state:

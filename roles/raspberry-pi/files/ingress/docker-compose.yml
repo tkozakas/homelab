@@ -34,6 +34,7 @@ services:
       - DEPLOY_TOKEN_GITHUBER=${DEPLOY_TOKEN_GITHUBER}
       - DEPLOY_TOKEN_PIMON=${DEPLOY_TOKEN_PIMON}
       - DEPLOY_TOKEN_JARVIS=${DEPLOY_TOKEN_JARVIS}
+      - DEPLOY_TOKEN_EXECUTOR=${DEPLOY_TOKEN_EXECUTOR}
       - DOCKER_CONFIG=/etc/docker-auth
     command: ["-verbose", "-template", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     restart: unless-stopped

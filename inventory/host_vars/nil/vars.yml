@@ -30,3 +30,6 @@ stacks:
   - name: jarvis
     profile: prod
     deploy: true
+  - name: executor
+    profile: prod
+    deploy: true
