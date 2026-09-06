@@ -25,12 +25,13 @@ tasks:
       - python3 scripts/new-stack.py {{.NAME}}
 
   scaffold:
-    desc: "Create project from template: task scaffold NAME=<name>"
+    desc: "Create project from template: task scaffold NAME=<name> LANG=<python|go|rust>"
     requires:
       vars: [NAME]
-    dir: "{{.CLONE_DIR}}"
+    vars:
+      LANG: '{{.LANG | default "python"}}'
     cmds:
-      - gh repo create $GH_OWNER/{{.NAME}} --private --template $GH_OWNER/stack-template --clone
+      - python3 {{.TASKFILE_DIR}}/scripts/scaffold.py {{.NAME}} {{.LANG}}
 
   repo:
     desc: "Create the repo and deploy secrets for a pre-existing project: task repo NAME=<name> (run inside the project directory)"
