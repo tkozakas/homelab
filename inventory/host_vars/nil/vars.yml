@@ -13,10 +13,6 @@ stacks:
   - name: got
     profile: prod
     deploy: true
-  - name: sauktiniai
-    profile: prod
-    deploy: true
-    caddy: true
   - name: gh-stats
     profile: prod
     deploy: true
