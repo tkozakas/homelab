@@ -1,6 +1,8 @@
 ---
 pi_hostname: "nil"
+home_dir: "/home/{{ vault_pi_user }}"
 svc_dir: "/home/{{ vault_pi_user }}/svc"
+docker_gid: 985
 
 stacks:
   - name: ingress
