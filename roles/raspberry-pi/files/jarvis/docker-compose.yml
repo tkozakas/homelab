@@ -18,6 +18,7 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - SANDBOX_IMAGE=${SANDBOX_IMAGE:-ghcr.io/tkozakas/jarvis-sandbox:main}
       - SANDBOX_NETWORK=${SANDBOX_NETWORK:-jarvis_default}
+      - SANDBOX_TIMEOUT=${SANDBOX_TIMEOUT:-3600}
       - GH_TOKEN=${GH_TOKEN}
       - SANDBOX_GH_TOKEN=${SANDBOX_GH_TOKEN}
       - GHCR_TOKEN=${GHCR_TOKEN}
