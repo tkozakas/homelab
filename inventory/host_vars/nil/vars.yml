@@ -33,3 +33,6 @@ stacks:
   - name: executor
     profile: prod
     deploy: true
+  - name: torrstream
+    profile: prod
+    deploy: true

@@ -1,0 +1,47 @@
+services:
+  torrserver:
+    profiles: ["prod"]
+    image: ghcr.io/yourok/torrserver:latest
+    expose:
+      - "8090"
+    environment:
+      - TS_PORT=8090
+      - TS_CONF_PATH=/opt/ts/config
+      - TS_TORRDIR=/opt/ts/cache
+      - TS_DONTKILL=1
+    volumes:
+      - ${DATA_DIR:-/srv/torrstream}/config:/opt/ts/config
+      - ${CACHE_DIR:-/srv/torrstream/cache}:/opt/ts/cache
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8090/echo"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  player:
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/torrstream:main
+    expose:
+      - "80"
+    environment:
+      - TS_UPSTREAM=torrserver:8090
+      - CACHE_SIZE=${CACHE_SIZE:-2147483648}
+      - TS_AUTH_USER=${TS_AUTH_USER:-}
+      - TS_AUTH_PASS=${TS_AUTH_PASS:-}
+    depends_on:
+      torrserver:
+        condition: service_healthy
+    networks:
+      default: {}
+      ingress:
+        aliases: [torrstream]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:80/healthz"]
+      interval: 60s
+    restart: unless-stopped
+
+networks:
+  ingress:
+    external: true
