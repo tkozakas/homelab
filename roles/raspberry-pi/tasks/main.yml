@@ -99,7 +99,7 @@
   loop: "{{ stacks }}"
 
 - name: Start stacks
-  shell: docker compose --profile {{ item.profile }} up -d
+  shell: docker compose --profile {{ item.profile }} up -d --remove-orphans
   args:
     chdir: "{{ svc_dir }}/{{ item.name }}"
   loop: "{{ stacks }}"
