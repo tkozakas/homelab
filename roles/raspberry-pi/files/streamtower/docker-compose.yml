@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   torrserver:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/yourok/torrserver:latest
     expose:
@@ -21,6 +28,7 @@ services:
     restart: unless-stopped
 
   jackett:
+    logging: *logging
     profiles: ["prod"]
     image: lscr.io/linuxserver/jackett:latest
     expose:
@@ -41,6 +49,7 @@ services:
     restart: unless-stopped
 
   player:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/streamtower:main
     expose:

@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   bot:
+    logging: *logging
     profiles: ["prod"]
     container_name: got
     image: ghcr.io/tkozakas/got:main
@@ -16,6 +23,7 @@ services:
     restart: unless-stopped
 
   postgres:
+    logging: *logging
     container_name: bot-postgres
     image: postgres:16-alpine
     environment:
@@ -30,6 +38,7 @@ services:
     restart: unless-stopped
 
   redis:
+    logging: *logging
     container_name: bot-redis
     image: redis:alpine
     volumes:

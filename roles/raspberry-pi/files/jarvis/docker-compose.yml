@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   copilot:
+    logging: *logging
     profiles: ["prod"]
     image: node:22-alpine
     command: sh -c "npx copilot-api@latest start --port 4141"
@@ -8,6 +15,7 @@ services:
     restart: unless-stopped
 
   jarvis:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/jarvis:main
     depends_on:
@@ -32,6 +40,7 @@ services:
     restart: unless-stopped
 
   docker-proxy:
+    logging: *logging
     profiles: ["prod"]
     image: tecnativa/docker-socket-proxy:latest
     environment:

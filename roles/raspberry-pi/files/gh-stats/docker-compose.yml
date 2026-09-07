@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   backend:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/gh-stats-backend:main
     expose:
@@ -21,6 +28,7 @@ services:
       start_period: 5s
 
   frontend:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/gh-stats-frontend:main
     expose:
@@ -31,6 +39,7 @@ services:
     restart: unless-stopped
 
   caddy:
+    logging: *logging
     profiles: ["prod"]
     image: caddy:alpine
     volumes:
@@ -48,6 +57,7 @@ services:
     restart: unless-stopped
 
   tunnel:
+    logging: *logging
     profiles: ["prod"]
     image: cloudflare/cloudflared:latest
     command: tunnel run

@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   caddy:
+    logging: *logging
     profiles: ["prod"]
     image: caddy:alpine
     volumes:
@@ -13,6 +20,7 @@ services:
     restart: unless-stopped
 
   webhook:
+    logging: *logging
     profiles: ["prod"]
     image: almir/webhook:latest
     volumes:
@@ -33,6 +41,7 @@ services:
     restart: unless-stopped
 
   hooks-tunnel:
+    logging: *logging
     profiles: ["prod"]
     image: cloudflare/cloudflared:latest
     command: tunnel run

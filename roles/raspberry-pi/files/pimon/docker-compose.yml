@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   pimon:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/pimon:main
     environment:

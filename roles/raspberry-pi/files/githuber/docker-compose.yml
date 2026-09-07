@@ -1,5 +1,12 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   githuber:
+    logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/githuber:main
     environment:
