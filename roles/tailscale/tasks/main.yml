@@ -13,11 +13,13 @@
   command: lsb_release -cs
   register: ts_codename
   changed_when: false
+  check_mode: false
 
 - name: Detect distro id
   command: lsb_release -is
   register: ts_distro
   changed_when: false
+  check_mode: false
 
 - name: Add Tailscale signing key
   get_url:
