@@ -46,18 +46,22 @@ services:
     expose:
       - "80"
     environment:
-      - TS_UPSTREAM=torrserver:8090
-      - JACKETT_UPSTREAM=jackett:9117
+      - TORRSERVER_URL=http://torrserver:8090
+      - JACKETT_URL=http://jackett:9117
+      - JACKETT_CONFIG_FILE=/jackett/Jackett/ServerConfig.json
       - JACKETT_API_KEY=${JACKETT_API_KEY:-}
-      - JACKETT_TIMEOUT=${JACKETT_TIMEOUT:-60}
+      - JACKETT_INDEXERS=${JACKETT_INDEXERS:-}
+      - SEARCH_TIMEOUT=${SEARCH_TIMEOUT:-}
       - CACHE_SIZE=${CACHE_SIZE:-2147483648}
       - TS_AUTH_USER=${TS_AUTH_USER:-}
       - TS_AUTH_PASS=${TS_AUTH_PASS:-}
+    volumes:
+      - ${JACKETT_CONFIG_DIR:-/srv/streamtower/jackett}:/jackett:ro
     depends_on:
       torrserver:
-        condition: service_healthy
+        condition: service_started
       jackett:
-        condition: service_healthy
+        condition: service_started
     networks:
       default: {}
       ingress:
@@ -67,7 +71,7 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 10s
+      start_period: 5s
     restart: unless-stopped
 
 networks:
