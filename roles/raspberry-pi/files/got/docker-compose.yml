@@ -2,7 +2,7 @@ services:
   bot:
     profiles: ["prod"]
     container_name: got
-    image: ghcr.io/tkozakas/got:latest
+    image: ghcr.io/tkozakas/got:main
     env_file:
       - .env
     environment:
