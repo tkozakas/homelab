@@ -38,7 +38,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  caddy:
+  ghstats:
     logging: *logging
     profiles: ["prod"]
     image: caddy:alpine
@@ -48,7 +48,8 @@ services:
       - frontend
       - backend
     networks:
-      default: {}
+      default:
+        aliases: [caddy]
       ingress:
         aliases: [ghstats]
     healthcheck:
@@ -64,7 +65,7 @@ services:
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
     depends_on:
-      - caddy
+      - ghstats
     restart: unless-stopped
 
 networks:
