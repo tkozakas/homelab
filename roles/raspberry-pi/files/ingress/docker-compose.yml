@@ -25,16 +25,9 @@ services:
       - ${DOCKER_AUTH}:/etc/docker-auth:ro
     group_add:
       - "${DOCKER_GID}"
+    env_file:
+      - .env
     environment:
-      - SVC_DIR=${SVC_DIR}
-      - DEPLOY_TOKEN=${DEPLOY_TOKEN}
-      - DEPLOY_TOKEN_SEA_BATTLE=${DEPLOY_TOKEN_SEA_BATTLE}
-      - DEPLOY_TOKEN_GOT=${DEPLOY_TOKEN_GOT}
-      - DEPLOY_TOKEN_GH_STATS=${DEPLOY_TOKEN_GH_STATS}
-      - DEPLOY_TOKEN_GITHUBER=${DEPLOY_TOKEN_GITHUBER}
-      - DEPLOY_TOKEN_PIMON=${DEPLOY_TOKEN_PIMON}
-      - DEPLOY_TOKEN_JARVIS=${DEPLOY_TOKEN_JARVIS}
-      - DEPLOY_TOKEN_EXECUTOR=${DEPLOY_TOKEN_EXECUTOR}
       - DOCKER_CONFIG=/etc/docker-auth
     command: ["-verbose", "-template", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     restart: unless-stopped

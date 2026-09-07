@@ -1,0 +1,32 @@
+{% set deploy_stacks = stacks | selectattr('deploy', 'defined') | selectattr('deploy') | list %}
+[
+{% for stack in deploy_stacks %}
+{% set token_var = 'vault_deploy_token_' ~ (stack.name | replace('-', '_')) %}
+  {
+    "id": "deploy-{{ stack.name }}",
+    "execute-command": "/scripts/deploy.sh",
+    "command-working-directory": "{{ '{{ getenv "SVC_DIR" }}' }}/{{ stack.name }}",
+    "response-message": "Deployment triggered",
+    "trigger-rule": {
+      "or": [
+{% if token_var in vars %}
+        {
+          "match": {
+            "type": "value",
+            "value": "{{ '{{ getenv "DEPLOY_TOKEN_' ~ (stack.name | upper | replace('-', '_')) ~ '" | js }}' }}",
+            "parameter": { "source": "header", "name": "Authorization" }
+          }
+        },
+{% endif %}
+        {
+          "match": {
+            "type": "value",
+            "value": "{{ '{{ getenv "DEPLOY_TOKEN" | js }}' }}",
+            "parameter": { "source": "header", "name": "Authorization" }
+          }
+        }
+      ]
+    }
+  }{{ "," if not loop.last }}
+{% endfor %}
+]
