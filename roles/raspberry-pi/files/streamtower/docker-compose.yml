@@ -16,6 +16,7 @@ services:
       - TS_CONF_PATH=/opt/ts/config
       - TS_TORRDIR=/opt/ts/cache
       - TS_DONTKILL=1
+      - GOMAXPROCS=2
     volumes:
       - ${DATA_DIR:-/srv/streamtower}/config:/opt/ts/config
       - ${CACHE_DIR:-/srv/streamtower/cache}:/opt/ts/cache
@@ -61,11 +62,29 @@ services:
       - JACKETT_API_KEY=${JACKETT_API_KEY:-}
       - JACKETT_INDEXERS=${JACKETT_INDEXERS:-}
       - SEARCH_TIMEOUT=${SEARCH_TIMEOUT:-}
-      - CACHE_SIZE=${CACHE_SIZE:-2147483648}
+      - CACHE_SIZE=${CACHE_SIZE:-268435456}
+      - READ_AHEAD_PERCENT=${READ_AHEAD_PERCENT:-}
+      - PRELOAD_BUFFER_BYTES=${PRELOAD_BUFFER_BYTES:-}
+      - PEER_CONNECTIONS=${PEER_CONNECTIONS:-}
+      - DHT_CONNECTIONS=${DHT_CONNECTIONS:-}
+      - UPLOAD_RATE_LIMIT=${UPLOAD_RATE_LIMIT:-}
+      - DOWNLOAD_RATE_LIMIT=${DOWNLOAD_RATE_LIMIT:-}
+      - TORRENT_DISCONNECT_SECONDS=${TORRENT_DISCONNECT_SECONDS:-}
+      - CATALOG_TTL=${CATALOG_TTL:-}
+      - SEARCH_TTL=${SEARCH_TTL:-}
+      - POSTER_TTL=${POSTER_TTL:-}
+      - META_DIR=/meta
+      - META_CACHE_BYTES=${META_CACHE_BYTES:-}
+      - TRANSCODE_JOBS=${TRANSCODE_JOBS:-1}
+      - GOMEMLIMIT=${GOMEMLIMIT:-192MiB}
+      - GOMAXPROCS=${GOMAXPROCS:-2}
       - TS_AUTH_USER=${TS_AUTH_USER:-}
       - TS_AUTH_PASS=${TS_AUTH_PASS:-}
     volumes:
       - ${JACKETT_CONFIG_DIR:-/srv/streamtower/jackett}:/jackett:ro
+      - ${META_DIR:-/srv/streamtower/meta}:/meta
+    devices:
+      - ${V4L2_ENCODER:-/dev/null}:${V4L2_ENCODER:-/dev/null}
     depends_on:
       torrserver:
         condition: service_started
