@@ -82,6 +82,9 @@ services:
       - SESSION_SECRET=${SESSION_SECRET:-}
       - TS_AUTH_USER=${TS_AUTH_USER:-}
       - TS_AUTH_PASS=${TS_AUTH_PASS:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - NOTIFY_WINDOW=${NOTIFY_WINDOW:-}
     volumes:
       - ${JACKETT_CONFIG_DIR:-/srv/streamtower/jackett}:/jackett:ro
       - ${META_DIR:-/srv/streamtower/meta}:/meta
