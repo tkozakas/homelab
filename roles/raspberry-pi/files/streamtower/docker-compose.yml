@@ -60,6 +60,7 @@ services:
       - JACKETT_URL=http://jackett:9117
       - JACKETT_CONFIG_FILE=/jackett/Jackett/ServerConfig.json
       - JACKETT_API_KEY=${JACKETT_API_KEY:-}
+      - JACKETT_PASSWORD=${JACKETT_PASSWORD:-}
       - JACKETT_INDEXERS=${JACKETT_INDEXERS:-}
       - SEARCH_TIMEOUT=${SEARCH_TIMEOUT:-}
       - CACHE_SIZE=${CACHE_SIZE:-268435456}
