@@ -7,6 +7,7 @@
       - lsb-release
     state: present
     update_cache: yes
+    cache_valid_time: 3600
   become: yes
 
 - name: Detect OS codename
@@ -40,6 +41,7 @@
     name: tailscale
     state: present
     update_cache: yes
+    cache_valid_time: 3600
   become: yes
 
 - name: Enable and start tailscaled
@@ -58,6 +60,7 @@
 
 - name: Bring Tailscale up
   command: "tailscale up --authkey={{ tailscale_authkey }} --hostname={{ tailscale_hostname }} {{ tailscale_up_args }}"
+  timeout: 120
   when:
     - tailscale_authkey | length > 0
     - ts_status.rc != 0 or (ts_status.stdout | from_json).BackendState != 'Running'
