@@ -11,6 +11,17 @@ restarts it. Secrets live in an encrypted vault.
 | GL-MT6000 | Router, DNS, VPN, Tailscale |
 | nil | Docker stacks, deploy webhooks |
 
+## Stack auto-deploy
+
+Pushing to main runs the `Stacks` workflow: it validates every
+`roles/raspberry-pi/files/*/docker-compose.yml` with `docker compose config -q`,
+then calls `$HOOKS_BASE/deploy-<stack>` for each stack whose files changed in that
+push. A non-2xx webhook response fails the job.
+
+- skip a deploy: put `[skip deploy]` in the commit message
+- jarvis is never auto-deployed: redeploying it would restart the bot mid-run,
+  so it is skipped with a notice and must be deployed manually
+
 ## Usage
 
 Copy .taskconfig.example to .taskconfig and fill in your values first.

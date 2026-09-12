@@ -1,0 +1,76 @@
+name: Stacks
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  STACK_DIR: roles/raspberry-pi/files
+  NO_DEPLOY_STACK: jarvis
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check compose files
+        run: |
+          status=0
+          for file in "$STACK_DIR"/*/docker-compose.yml; do
+            echo "::group::$file"
+            docker compose -f "$file" config -q || status=1
+            echo "::endgroup::"
+          done
+          exit $status
+
+  deploy:
+    name: Deploy changed stacks
+    needs: validate
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip deploy]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed stacks
+        id: changed
+        run: |
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            range="${{ github.sha }}^!"
+          else
+            range="$before ${{ github.sha }}"
+          fi
+          stacks=$(git diff --name-only $range -- "$STACK_DIR" | cut -d/ -f4 | sort -u)
+          echo "changed: ${stacks:-none}"
+          echo "stacks<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$stacks" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger deploy webhooks
+        env:
+          HOOKS_BASE: ${{ secrets.HOOKS_BASE }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          STACKS: ${{ steps.changed.outputs.stacks }}
+        run: |
+          status=0
+          for stack in $STACKS; do
+            if [ "$stack" = "$NO_DEPLOY_STACK" ]; then
+              echo "notice: skipping $stack, it is excluded from auto-deploy"
+              continue
+            fi
+            echo "Deploying $stack"
+            code=$(curl -sS -o /tmp/response -w '%{http_code}' -X POST \
+              -H "Authorization: $DEPLOY_TOKEN" "$HOOKS_BASE/deploy-$stack")
+            cat /tmp/response; echo
+            case "$code" in
+              2??) echo "$stack: ok" ;;
+              *) echo "$stack: webhook returned $code"; status=1 ;;
+            esac
+          done
+          exit $status
