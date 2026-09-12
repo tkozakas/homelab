@@ -58,11 +58,47 @@
     update_cache: yes
   become: yes
 
+- name: Read existing docker daemon config
+  slurp:
+    src: /etc/docker/daemon.json
+  register: docker_daemon_raw
+  failed_when: false
+  become: yes
+
+- name: Set docker log rotation limits
+  copy:
+    content: "{{ docker_daemon_current | combine(docker_daemon_log_config) | to_nice_json }}\n"
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  vars:
+    docker_daemon_current: "{{ (docker_daemon_raw.content | b64decode | from_json) if docker_daemon_raw.content is defined else {} }}"
+  become: yes
+  notify: Restart docker
+
 - name: Enable and start Docker
   systemd:
     name: docker
     enabled: yes
     state: started
+  become: yes
+
+- name: Bound journald disk usage
+  ini_file:
+    path: /etc/systemd/journald.conf
+    section: Journal
+    option: SystemMaxUse
+    value: "{{ journald_max_use }}"
+    mode: "0644"
+  become: yes
+  notify: Restart journald
+
+- name: Prune dangling docker images and build cache nightly
+  cron:
+    name: docker-prune
+    user: root
+    minute: "0"
+    hour: "4"
+    job: "docker image prune -f && docker builder prune -f"
   become: yes
 
 - name: Add users to docker group

@@ -10,3 +10,11 @@ pi_base_packages:
 
 pi_docker_users:
   - "{{ ansible_user }}"
+
+journald_max_use: "200M"
+
+docker_daemon_log_config:
+  log-driver: json-file
+  log-opts:
+    max-size: "10m"
+    max-file: "3"
