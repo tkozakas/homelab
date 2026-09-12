@@ -34,9 +34,15 @@ services:
       - DEPLOY_TOKEN=${DEPLOY_TOKEN}
       - HOOKS_BASE=${HOOKS_BASE}
       - EXECUTOR_TOKEN=${EXECUTOR_TOKEN}
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - state:/state
+    networks:
+      - default
+      - ingress
     restart: unless-stopped
 
   docker-proxy:
@@ -59,3 +65,7 @@ services:
 volumes:
   copilot-data:
   state:
+
+networks:
+  ingress:
+    external: true
