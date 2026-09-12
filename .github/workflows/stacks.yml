@@ -18,11 +18,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check compose files
+        env:
+          PLACEHOLDER: placeholder
         run: |
           status=0
           for file in "$STACK_DIR"/*/docker-compose.yml; do
             echo "::group::$file"
-            docker compose -f "$file" config -q || status=1
+            env_file=$(mktemp)
+            grep -o '\${[A-Za-z_][A-Za-z0-9_]*' "$file" | cut -c3- | sort -u \
+              | sed "s|\$|=$PLACEHOLDER|" > "$env_file"
+            docker compose -f "$file" --env-file "$env_file" config -q || status=1
+            rm -f "$env_file"
             echo "::endgroup::"
           done
           exit $status
