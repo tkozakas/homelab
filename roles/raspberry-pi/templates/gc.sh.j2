@@ -1,0 +1,23 @@
+#!/bin/sh
+set -u
+
+GC_DIR="{{ svc_dir | dirname }}/backups"
+LOG="$GC_DIR/gc.log"
+LOGMAX=1000
+
+mkdir -p "$GC_DIR"
+
+STAMP="$(date '+%Y-%m-%d %H:%M:%S')"
+
+before=$(docker system df --format '{{.Size}}' | head -1)
+
+docker image prune -af --filter "until=72h" >/dev/null 2>&1
+docker builder prune -af >/dev/null 2>&1
+
+after=$(docker system df --format '{{.Size}}' | head -1)
+
+echo "[$STAMP] Images pruned" >> "$LOG"
+
+if [ -f "$LOG" ]; then
+    tail -n $LOGMAX "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+fi

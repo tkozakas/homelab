@@ -89,6 +89,21 @@
     hour: "3"
     job: "/usr/local/bin/homelab-backup >> {{ svc_dir | dirname }}/backups/backup.log 2>&1"
 
+- name: Deploy gc script
+  template:
+    src: gc.sh.j2
+    dest: /usr/local/bin/homelab-gc
+    owner: "{{ ansible_user }}"
+    mode: "0755"
+
+- name: Schedule nightly docker image garbage collection
+  cron:
+    name: homelab-gc
+    user: "{{ ansible_user }}"
+    minute: "30"
+    hour: "4"
+    job: "/usr/local/bin/homelab-gc >> {{ svc_dir | dirname }}/backups/gc.log 2>&1"
+
 
 - name: Deploy .env files from vault
   template:
