@@ -10,10 +10,13 @@ mkdir -p "$GC_DIR"
 STAMP="$(date '+%Y-%m-%d %H:%M:%S')"
 
 {% raw %}
-docker image prune -af --filter "until=72h" >/dev/null 2>&1
-docker builder prune -af >/dev/null 2>&1
+images_out=$(docker image prune -af --filter "until=72h" 2>&1)
+images_reclaimed=$(echo "$images_out" | grep "Total reclaimed space" | tail -1 | sed 's/.*: //')
 
-echo "[$STAMP] Images pruned" >> "$LOG"
+builder_out=$(docker builder prune -af 2>&1)
+builder_reclaimed=$(echo "$builder_out" | grep "Total reclaimed space" | tail -1 | sed 's/.*: //')
+
+echo "[$STAMP] images: $images_reclaimed, builder: $builder_reclaimed" >> "$LOG"
 
 if [ -f "$LOG" ]; then
     tail -n $LOGMAX "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
