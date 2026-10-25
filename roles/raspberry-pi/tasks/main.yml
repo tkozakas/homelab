@@ -124,7 +124,8 @@
   register: ghcr_login_check
   changed_when: false
   failed_when: false
-  become: false
+  vars:
+    ansible_become: false
   no_log: true
 
 - name: Log in to ghcr
@@ -132,7 +133,8 @@
   args:
     stdin: "{{ vault_ghcr_pull_token }}"
   when: ghcr_login_check.rc != 0
-  become: false
+  vars:
+    ansible_become: false
   no_log: true
 
 - name: Start stacks
