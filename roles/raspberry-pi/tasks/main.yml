@@ -111,7 +111,29 @@
     dest: "{{ svc_dir }}/{{ item.name }}/.env"
     owner: "{{ ansible_user }}"
     mode: "0600"
+  diff: false
   loop: "{{ stacks }}"
+
+- name: Check ghcr docker login
+  shell: |
+    expected=$(printf '%s:%s' "$GHCR_USER" "$GHCR_TOKEN" | base64 -w0)
+    grep -q "\"$expected\"" {{ home_dir }}/.docker/config.json
+  environment:
+    GHCR_USER: "{{ ghcr_user }}"
+    GHCR_TOKEN: "{{ vault_ghcr_pull_token }}"
+  register: ghcr_login_check
+  changed_when: false
+  failed_when: false
+  become: false
+  no_log: true
+
+- name: Log in to ghcr
+  command: docker login ghcr.io -u {{ ghcr_user }} --password-stdin
+  args:
+    stdin: "{{ vault_ghcr_pull_token }}"
+  when: ghcr_login_check.rc != 0
+  become: false
+  no_log: true
 
 - name: Start stacks
   shell: docker compose --profile {{ item.profile }} up -d --remove-orphans

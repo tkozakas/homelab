@@ -3,3 +3,4 @@ svc_dir: "/home/{{ vault_pi_user }}/svc"
 stacks: []
 docker_cli_version: "27.5.1"
 docker_compose_version: "2.32.4"
+ghcr_user: tkozakas
