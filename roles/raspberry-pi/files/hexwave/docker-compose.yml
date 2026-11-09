@@ -17,7 +17,7 @@ services:
       ingress:
         aliases: [hexwave]
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:80/"]
       interval: 60s
       timeout: 3s
       retries: 3
