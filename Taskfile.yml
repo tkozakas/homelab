@@ -5,12 +5,20 @@ dotenv: [".taskconfig"]
 vars:
   HOST_SSH: ssh -i $HOST_SSH_KEY -o BatchMode=yes $HOST_USER@$HOST_ADDR
   CLONE_DIR: '{{.CLONE_DIR | default "$HOME/Documents"}}'
+  COLLECTIONS_DIR: '{{.COLLECTIONS_DIR | default "$HOME/.ansible/collections/ansible_collections"}}'
   VAULT_FILE: inventory/host_vars/$HOST_VARS/vault.yml
   ANSIBLE_OVERRIDES: >-
     -e "{\"ansible_password\": null, \"ansible_become_password\": null,
     \"ansible_ssh_private_key_file\": \"$HOST_SSH_KEY\"}"
 
 tasks:
+  deps:
+    desc: Install required ansible collections
+    cmds:
+      - ansible-galaxy collection install -r requirements.yml
+    status:
+      - test -d {{.COLLECTIONS_DIR}}/community/general
+
   default:
     desc: List tasks
     cmds:
@@ -24,16 +32,19 @@ tasks:
       - ansible-vault edit {{.VAULT_FILE}}
 
   check:
+    deps: [deps]
     desc: Validate playbook syntax
     cmds:
       - ansible-playbook $PLAYBOOK --syntax-check
 
   diff:
+    deps: [deps]
     desc: Preview playbook changes
     cmds:
       - ansible-playbook $PLAYBOOK --check --diff {{.ANSIBLE_OVERRIDES}}
 
   deploy:
+    deps: [deps]
     desc: Run the playbook
     cmds:
       - ansible-playbook $PLAYBOOK {{.ANSIBLE_OVERRIDES}}

@@ -19,6 +19,9 @@ Copy .taskconfig.example to .taskconfig and fill in your values first.
 # list automation tasks
 task
 
+# install required ansible collections (run once, and after requirements.yml changes)
+task deps
+
 # everything
 ansible-playbook playbooks/site.yml
 
