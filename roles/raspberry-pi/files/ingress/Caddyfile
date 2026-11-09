@@ -7,6 +7,12 @@
         reverse_proxy githuber:8080
     }
 
+    redir /wordforge /wordforge/
+
+    handle_path /wordforge/* {
+        reverse_proxy wordforge:80
+    }
+
     handle {
         reverse_proxy ghstats:80
     }

@@ -1,0 +1,28 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  wordforge:
+    logging: *logging
+    profiles: ["prod"]
+    image: ghcr.io/tkozakas/wordforge:main
+    expose:
+      - "80"
+    networks:
+      default:
+      ingress:
+        aliases: [wordforge]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  ingress:
+    external: true
