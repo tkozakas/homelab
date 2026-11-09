@@ -34,6 +34,9 @@ stacks:
   - name: streamtower
     profile: prod
     deploy: true
+  - name: hexwave
+    profile: prod
+    deploy: true
   - name: wordforge
     profile: prod
     deploy: true

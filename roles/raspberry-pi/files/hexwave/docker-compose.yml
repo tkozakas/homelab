@@ -1,0 +1,29 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  hexwave:
+    logging: *logging
+    profiles: ["prod"]
+    container_name: hexwave
+    image: ghcr.io/tkozakas/hexwave:main
+    expose:
+      - "80"
+    networks:
+      default:
+      ingress:
+        aliases: [hexwave]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/"]
+      interval: 60s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+networks:
+  ingress:
+    external: true
