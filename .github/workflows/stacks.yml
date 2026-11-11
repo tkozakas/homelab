@@ -83,6 +83,7 @@ jobs:
             cat /tmp/response; echo
             case "$code" in
               2??) echo "$stack: ok" ;;
+              404) echo "notice: $stack has no deploy webhook yet, run ansible to provision it" ;;
               *) echo "$stack: webhook returned $code"; status=1 ;;
             esac
           done
