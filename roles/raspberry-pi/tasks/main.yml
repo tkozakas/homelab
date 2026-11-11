@@ -144,3 +144,5 @@
   loop: "{{ stacks }}"
   register: stack_results
   changed_when: "'Started' in stack_results.stderr or 'Created' in stack_results.stderr"
+  vars:
+    ansible_become: false
