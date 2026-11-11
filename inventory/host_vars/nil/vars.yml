@@ -40,3 +40,6 @@ stacks:
   - name: wordforge
     profile: prod
     deploy: true
+  - name: arcade
+    profile: prod
+    deploy: true
