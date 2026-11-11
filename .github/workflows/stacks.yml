@@ -8,6 +8,7 @@ on:
 
 env:
   STACK_DIR: roles/raspberry-pi/files
+  VARS_FILE: inventory/host_vars/nil/vars.yml
   NO_DEPLOY_STACK: jarvis
 
 jobs:
@@ -53,6 +54,12 @@ jobs:
             range="$before ${{ github.sha }}"
           fi
           stacks=$(git diff --name-only $range -- "$STACK_DIR" | cut -d/ -f4 | sort -u)
+          deployable=$(awk '
+            /^  - name:/ { name = $3 }
+            /^    deploy: true$/ { print name }
+          ' "$VARS_FILE" | sort -u)
+          echo "deployable: $(echo $deployable)"
+          stacks=$(comm -12 <(echo "$stacks") <(echo "$deployable"))
           echo "changed: ${stacks:-none}"
           echo "stacks<<EOF" >> "$GITHUB_OUTPUT"
           echo "$stacks" >> "$GITHUB_OUTPUT"

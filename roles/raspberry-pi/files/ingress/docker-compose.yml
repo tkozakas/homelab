@@ -24,7 +24,7 @@ services:
     profiles: ["prod"]
     image: almir/webhook:latest
     volumes:
-      - ${SVC_DIR}/ingress/deploy/hooks.json:/etc/webhook/hooks.json:ro
+      - ${SVC_DIR}/ingress/deploy:/etc/webhook:ro
       - ${SVC_DIR}/ingress/deploy/deploy.sh:/scripts/deploy.sh:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ${SVC_DIR}/ingress/deploy/bin/docker:/usr/local/bin/docker:ro
