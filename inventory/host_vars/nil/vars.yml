@@ -43,3 +43,6 @@ stacks:
   - name: arcade
     profile: prod
     deploy: true
+  - name: lebedev-cut
+    profile: prod
+    deploy: true
