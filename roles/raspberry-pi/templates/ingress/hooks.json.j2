@@ -9,7 +9,7 @@
     "response-message": "Deployment triggered",
     "trigger-rule": {
       "or": [
-{% if token_var in vars %}
+{% if query('varnames', '^' ~ token_var ~ '$') %}
         {
           "match": {
             "type": "value",

@@ -32,10 +32,21 @@
     force: false
   become: yes
 
+- name: Remove legacy Docker apt list
+  file:
+    path: /etc/apt/sources.list.d/docker.list
+    state: absent
+  become: yes
+
 - name: Add Docker apt repository
-  apt_repository:
-    repo: "deb [arch={{ ansible_architecture | replace('aarch64','arm64') | replace('x86_64','amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ pi_codename.stdout }} stable"
-    filename: docker
+  deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/debian
+    suites: "{{ pi_codename.stdout }}"
+    components: stable
+    architectures: "{{ ansible_facts['architecture'] | replace('aarch64','arm64') | replace('x86_64','amd64') }}"
+    signed_by: /etc/apt/keyrings/docker.asc
     state: present
   become: yes
 

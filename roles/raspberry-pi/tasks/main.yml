@@ -60,9 +60,9 @@
 - name: Install static docker cli for webhook
   shell: |
     set -e
-    curl -fsSL https://download.docker.com/linux/static/stable/{{ ansible_architecture }}/docker-{{ docker_cli_version }}.tgz | tar -xz -C /tmp docker/docker
+    curl -fsSL https://download.docker.com/linux/static/stable/{{ ansible_facts['architecture'] }}/docker-{{ docker_cli_version }}.tgz | tar -xz -C /tmp docker/docker
     install -D -o {{ ansible_user }} /tmp/docker/docker {{ svc_dir }}/ingress/deploy/bin/docker
-    curl -fsSL -o {{ svc_dir }}/ingress/deploy/bin/docker-compose https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}
+    curl -fsSL -o {{ svc_dir }}/ingress/deploy/bin/docker-compose https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_facts['architecture'] }}
     chown {{ ansible_user }} {{ svc_dir }}/ingress/deploy/bin/docker-compose
     chmod 755 {{ svc_dir }}/ingress/deploy/bin/docker-compose
   args:
