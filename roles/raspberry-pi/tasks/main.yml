@@ -55,6 +55,7 @@
     dest: "{{ svc_dir }}/ingress/deploy/hooks.json"
     owner: "{{ ansible_user }}"
     mode: "0644"
+  register: webhook_hooks
 
 - name: Install static docker cli for webhook
   shell: |
@@ -144,5 +145,13 @@
   loop: "{{ stacks }}"
   register: stack_results
   changed_when: "'Started' in stack_results.stderr or 'Created' in stack_results.stderr"
+  vars:
+    ansible_become: false
+
+- name: Restart webhook so replaced hooks load
+  command: docker compose --profile prod restart webhook
+  args:
+    chdir: "{{ svc_dir }}/ingress"
+  when: webhook_hooks.changed
   vars:
     ansible_become: false
