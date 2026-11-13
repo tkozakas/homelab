@@ -54,11 +54,11 @@ stacks:
       - host: streamtower.tkozakas.online
         service: http://streamtower:80
       - host: jackett.tkozakas.online
-        service: http://streamtower-jackett-1:9117
+        service: http://jackett:9117
       - host: streamtower.tkozakas.com
         service: http://streamtower:80
       - host: jackett.tkozakas.com
-        service: http://streamtower-jackett-1:9117
+        service: http://jackett:9117
   - name: hexwave
     profile: prod
     deploy: true

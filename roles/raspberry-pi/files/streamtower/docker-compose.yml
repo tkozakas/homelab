@@ -41,6 +41,10 @@ services:
       - AUTO_UPDATE=false
     volumes:
       - ${JACKETT_CONFIG_DIR:-/srv/streamtower/jackett}:/config
+    networks:
+      default: {}
+      ingress:
+        aliases: [jackett]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:9117/UI/Login"]
       interval: 30s
