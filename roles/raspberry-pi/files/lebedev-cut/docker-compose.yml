@@ -9,8 +9,16 @@ services:
     logging: *logging
     profiles: ["prod"]
     image: ghcr.io/tkozakas/lebedev-cut:main
+    environment:
+      - CONTENT_DIR=/data
+      - CONSOLE_USER=${CONSOLE_USER}
+      - CONSOLE_PASSWORD=${CONSOLE_PASSWORD}
+      - CONSOLE_SECRET=${CONSOLE_SECRET}
     expose:
       - "8080"
+      - "8081"
+    volumes:
+      - content:/data
     networks:
       default:
       ingress:
@@ -22,6 +30,9 @@ services:
       retries: 3
       start_period: 5s
     restart: unless-stopped
+
+volumes:
+  content:
 
 networks:
   ingress:

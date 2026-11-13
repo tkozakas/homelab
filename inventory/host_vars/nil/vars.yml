@@ -85,6 +85,8 @@ stacks:
         service: http://lebedev-cut-lebedev-cut-1:8080
       - host: lebedev-cut2.tkozakas.com
         service: http://lebedev-cut-lebedev-cut-1:8080
+      - host: lebedev-cut-console.tkozakas.com
+        service: http://lebedev-cut-lebedev-cut-1:8081
 
 subdomain_tunnel: tkozakas
 
