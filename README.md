@@ -18,7 +18,7 @@ Every public hostname is declared on its stack in `inventory/host_vars/nil/vars.
 ```yaml
   - name: lebedev-cut
     subdomains:
-      - host: lebedev-cut.tkozakas.online
+      - host: lebedev-cut.tkozakas.com
         service: http://lebedev-cut-lebedev-cut-1:8080
 ```
 
