@@ -28,6 +28,10 @@ record for each declared host and removes the hosts listed under `retired_subdom
 Routes that exist in Cloudflare but are declared nowhere are only reported as warnings.
 Pull requests get a dry run.
 
+Services that must stay private (for example Jackett) publish their port on `127.0.0.1` only and
+are listed under `tailnet_services`. Ansible serves each one to the tailnet with
+`tailscale serve`, at `http://nil:<port>` from any device on the tailnet.
+
 ## Usage
 
 Copy .taskconfig.example to .taskconfig and fill in your values first.

@@ -32,8 +32,8 @@ services:
     logging: *logging
     profiles: ["prod"]
     image: lscr.io/linuxserver/jackett:latest
-    expose:
-      - "9117"
+    ports:
+      - "127.0.0.1:9117:9117"
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -43,8 +43,6 @@ services:
       - ${JACKETT_CONFIG_DIR:-/srv/streamtower/jackett}:/config
     networks:
       default: {}
-      ingress:
-        aliases: [jackett]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:9117/UI/Login"]
       interval: 30s

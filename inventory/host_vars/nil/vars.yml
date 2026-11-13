@@ -49,8 +49,6 @@ stacks:
     subdomains:
       - host: streamtower.tkozakas.com
         service: http://streamtower:80
-      - host: jackett.tkozakas.com
-        service: http://jackett:9117
   - name: hexwave
     profile: prod
     deploy: true
@@ -87,3 +85,8 @@ retired_subdomains:
   - arcade.tkozakas.online
   - lebedev-cut.tkozakas.online
   - lebedev-cut2.tkozakas.online
+  - jackett.tkozakas.com
+
+tailnet_services:
+  - name: jackett
+    port: 9117

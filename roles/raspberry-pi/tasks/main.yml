@@ -179,3 +179,17 @@
   when: item.rc == 0 and item.stdout != lookup('file', item.item.name ~ '/Caddyfile')
   vars:
     ansible_become: false
+
+- name: Read tailnet serve config
+  command: tailscale serve status --json
+  register: tailnet_serve
+  changed_when: false
+
+- name: Serve private services on the tailnet
+  command: tailscale serve --bg --http={{ item.port }} http://127.0.0.1:{{ item.port }}
+  loop: "{{ tailnet_services | default([]) }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: (item.port | string) not in (served.TCP | default({}))
+  vars:
+    served: "{{ (tailnet_serve.stdout | default('', true) or '{}') | from_json }}"
