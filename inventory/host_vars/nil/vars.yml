@@ -8,10 +8,17 @@ stacks:
   - name: ingress
     profile: prod
     caddy: true
+    subdomains:
+      - host: tkozakas.online
+        service: http://caddy:80
   - name: sea-battle
     profile: prod
     deploy: true
     caddy: true
+    subdomains:
+      - host: sea-battle-api.tkozakas.online
+        service: http://caddy:80
+        tunnel: sea-battle
   - name: got
     profile: prod
     deploy: true
@@ -19,6 +26,10 @@ stacks:
     profile: prod
     deploy: true
     caddy: true
+    subdomains:
+      - host: ghstats.fun
+        service: http://caddy:80
+        tunnel: ghstats
   - name: githuber
     profile: prod
     deploy: true
@@ -34,6 +45,11 @@ stacks:
   - name: streamtower
     profile: prod
     deploy: true
+    subdomains:
+      - host: streamtower.tkozakas.online
+        service: http://streamtower:80
+      - host: jackett.tkozakas.online
+        service: http://streamtower-jackett-1:9117
   - name: hexwave
     profile: prod
     deploy: true
@@ -43,6 +59,21 @@ stacks:
   - name: arcade
     profile: prod
     deploy: true
+    subdomains:
+      - host: arcade.tkozakas.online
+        service: http://arcade-arcade-1:8080
   - name: lebedev-cut
     profile: prod
     deploy: true
+    subdomains:
+      - host: lebedev-cut.tkozakas.online
+        service: http://lebedev-cut-lebedev-cut-1:8080
+      - host: lebedev-cut2.tkozakas.online
+        service: http://lebedev-cut-lebedev-cut-1:8080
+
+subdomain_tunnel: tkozakas
+
+retired_subdomains:
+  - hexwave.tkozakas.online
+  - wordforge.tkozakas.online
+  - sea-battle.tkozakas.online

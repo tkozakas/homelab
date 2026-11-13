@@ -34,6 +34,25 @@ jobs:
           done
           exit $status
 
+  subdomains:
+    name: Subdomains
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Reconcile Cloudflare with declared subdomains
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            uv run --with pyyaml python scripts/subdomains.py --apply "$VARS_FILE"
+          else
+            uv run --with pyyaml python scripts/subdomains.py "$VARS_FILE"
+          fi
+
   deploy:
     name: Deploy changed stacks
     needs: validate

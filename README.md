@@ -11,6 +11,23 @@ restarts it. Secrets live in an encrypted vault.
 | GL-MT6000 | Router, DNS, VPN, Tailscale |
 | nil | Docker stacks, deploy webhooks |
 
+## Subdomains
+
+Every public hostname is declared on its stack in `inventory/host_vars/nil/vars.yml`:
+
+```yaml
+  - name: lebedev-cut
+    subdomains:
+      - host: lebedev-cut.tkozakas.online
+        service: http://lebedev-cut-lebedev-cut-1:8080
+```
+
+`tunnel` defaults to `subdomain_tunnel`. On every push to main the Subdomains job runs
+`scripts/subdomains.py --apply`: it creates or fixes the Cloudflare tunnel route and DNS
+record for each declared host and removes the hosts listed under `retired_subdomains`.
+Routes that exist in Cloudflare but are declared nowhere are only reported as warnings.
+Pull requests get a dry run.
+
 ## Usage
 
 Copy .taskconfig.example to .taskconfig and fill in your values first.
