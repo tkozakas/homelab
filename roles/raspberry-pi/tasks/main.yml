@@ -155,3 +155,27 @@
   when: webhook_hooks.changed
   vars:
     ansible_become: false
+
+- name: Read running Caddyfiles
+  command: docker compose --profile {{ item.profile }} exec -T {{ item.caddy_service | default('caddy') }} cat /etc/caddy/Caddyfile
+  args:
+    chdir: "{{ svc_dir }}/{{ item.name }}"
+  loop: "{{ stacks | selectattr('caddy', 'defined') | selectattr('caddy') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: running_caddyfiles
+  changed_when: false
+  failed_when: false
+  vars:
+    ansible_become: false
+
+- name: Restart caddy still running a replaced Caddyfile
+  command: docker compose --profile {{ item.item.profile }} restart {{ item.item.caddy_service | default('caddy') }}
+  args:
+    chdir: "{{ svc_dir }}/{{ item.item.name }}"
+  loop: "{{ running_caddyfiles.results }}"
+  loop_control:
+    label: "{{ item.item.name }}"
+  when: item.rc == 0 and item.stdout != lookup('file', item.item.name ~ '/Caddyfile')
+  vars:
+    ansible_become: false

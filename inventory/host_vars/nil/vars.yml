@@ -26,6 +26,7 @@ stacks:
     profile: prod
     deploy: true
     caddy: true
+    caddy_service: ghstats
     subdomains:
       - host: ghstats.fun
         service: http://caddy:80
