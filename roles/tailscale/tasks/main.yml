@@ -39,7 +39,7 @@
 - name: Install Tailscale
   apt:
     name: tailscale
-    state: present
+    state: latest
     update_cache: yes
     cache_valid_time: 3600
   become: yes
